@@ -37,6 +37,9 @@ QueueHandle_t IEEE802154Sniffer::_rxQueue = nullptr;
 static const uint8_t HOP_CHANNELS[] = {11,15,20,25,26,12,16,21};
 static const uint8_t HOP_COUNT = sizeof(HOP_CHANNELS);
 
+static const bool no_bcast = true;
+static const bool no_duplicates = true;
+
 // -- ISR callback --------------------------------------------------------------
 void IEEE802154Sniffer::rxCallback(uint8_t *frame,
                                     esp_ieee802154_frame_info_t *fi) {
@@ -165,8 +168,10 @@ uint8_t IEEE802154Sniffer::update() {
             if (info.protocol == FrameProtocol::THREAD ||
                 info.protocol == FrameProtocol::MATTER)  _threadCount++;
 
-            _updateHost(info);
-            _printFrame(info);
+            // _updateHost(info);
+            if (no_duplicates && _updateHost(info)) {
+              _printFrame(info);
+            }
             if (onFrame) onFrame(info);
         }
         processed++;
@@ -384,8 +389,11 @@ HostRecord *IEEE802154Sniffer::findHost(uint16_t addr) {
     return nullptr;
 }
 
-void IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
+// return true if new host.
+bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
     uint32_t now = millis();
+
+    bool ret = false;
 
     // Update or create record for MAC src
     auto updateRecord = [&](uint16_t addr, bool isSrc) {
@@ -394,6 +402,7 @@ void IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
         }
         HostRecord *h = findHost(addr);
         if (!h) {
+            ret = true;
             h = new HostRecord();
             h->shortAddr   = addr;
             h->extAddr     = 0;
@@ -446,6 +455,8 @@ void IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
             r->deviceType = DeviceType::ROUTER;
         }
     }
+
+    return ret;
 }
 
 void IEEE802154Sniffer::printHosts() {
@@ -473,6 +484,10 @@ void IEEE802154Sniffer::printHosts() {
 void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     // MAC hop
     char macSrc[10], macDst[10];
+
+    // if (no_bcast && info.macSrc == 0xFFFF && info.macDst == 0xFFFF)
+    //    return;
+
     snprintf(macSrc, sizeof(macSrc),
              info.macSrc == 0xFFFF ? "BCAST" : "0x%04X", info.macSrc);
     snprintf(macDst, sizeof(macDst),
@@ -481,13 +496,15 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     if (!info.hasRoute || (info.route.nwkSrc == info.macSrc &&
                             info.route.nwkDst == info.macDst &&
                             info.route.hopCount == 0)) {
+
         // Direct / no route info - single line
-        SNIFFER_SERIAL.printf("[%02u] %-8s  %s→%-6s  PAN:%04X  %-16s  RSSI:%3d LQI:%3u  %3uB\n",
+        SNIFFER_SERIAL.printf("[%02u] %-8s  %s→%s  PAN:%04X  %-16s  RSSI:%4d LQI:%3u  %3uB\n",
             info.channel, info.protocolName,
             macSrc, macDst, info.panId,
             info.functionName ? info.functionName : "",
             info.rssi, info.lqi, info.len);
     } else {
+
         // Has route - print full path
         SNIFFER_SERIAL.printf("[%02u] %-8s  MAC:%s→%-6s  NWK:0x%04X→0x%04X",
             info.channel, info.protocolName,

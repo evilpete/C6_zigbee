@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 // -- Channel config ------------------------------------------------------------
-#define SNIFFER_DEFAULT_CHANNEL     15
+#define SNIFFER_DEFAULT_CHANNEL     26
 #define SNIFFER_MIN_CHANNEL         11
 #define SNIFFER_MAX_CHANNEL         26
 
@@ -223,7 +223,7 @@ private:
     bool  _isThread(const uint8_t *payload, uint8_t len);
 
     // Host tracking
-    void  _updateHost(const FrameInfo &info);
+    bool  _updateHost(const FrameInfo &info);
 
     // Output
     void  _printFrame(const FrameInfo &info);

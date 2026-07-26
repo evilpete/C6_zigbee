@@ -28,6 +28,7 @@
   #define SNIFFER_SERIAL Serial
 // #endif
 
+#ifdef CONFIG_IDF_TARGET_ESP32C6
 // -- WS2812B ------------------------------------------------------------------
 #define LED_PIN     8
 #define LED_COUNT   1
@@ -43,6 +44,7 @@ Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 #define COL_YELLOW  led.Color(80,  60,  0)
 #define COL_RED     led.Color(80,  0,   0)
 #define COL_WHITE   led.Color(40,  40,  40)
+
 
 static uint32_t _flashColor    = 0;
 static uint32_t _flashUntil    = 0;
@@ -77,6 +79,20 @@ void ledUpdate() {
         led.show();
     }
 }
+#else
+void ledFlash(uint32_t color, uint16_t duration_ms = 80) { }
+
+void ledUpdate() {}
+
+// Colours
+#define COL_OFF     0
+#define COL_BLUE    0
+#define COL_GREEN   0
+#define COL_PURPLE  0
+#define COL_YELLOW  0
+#define COL_RED     0
+#define COL_WHITE   0
+#endif
 
 // -- Sniffer -------------------------------------------------------------------
 IEEE802154Sniffer sniffer;
@@ -93,6 +109,11 @@ void onSnifferFrame(const FrameInfo &info) {
     // TFT display hook goes here in a future version
 }
 
+void printheader() {
+    SNIFFER_SERIAL.println();
+    SNIFFER_SERIAL.println("[CH] Protocol     Src          -> Dst         PAN     Function          RSSI    Len");
+    SNIFFER_SERIAL.println("-------------------------------------------------------------------------------------");
+}
 // -- Serial command handler ----------------------------------------------------
 void handleSerial() {
     if (!SNIFFER_SERIAL.available()) return;
@@ -106,11 +127,15 @@ void handleSerial() {
             sniffer.stopChannelHop();
             hopping = false;
             sniffer.setChannel(ch);
-            ledFlash(COL_WHITE, 100);
+            #ifdef CONFIG_IDF_TARGET_ESP32C6
+              ledFlash(COL_WHITE, 100);
+            #endif
         } else {
             SNIFFER_SERIAL.printf("Channel must be %u-%u\n",
                           SNIFFER_MIN_CHANNEL, SNIFFER_MAX_CHANNEL);
         }
+    } else if (cmd == "H") {
+      printheader();
     } else if (cmd == "h") {
         hopping = !hopping;
         if (hopping) { sniffer.startChannelHop(500); ledFlash(COL_WHITE, 200); }
@@ -145,10 +170,12 @@ void setup() {
     delay(1000);
 
     // LED init
-    led.begin();
-    led.setBrightness(LED_BRIGHT);
-    led.setPixelColor(0, COL_RED);
-    led.show();
+    #ifdef CONFIG_IDF_TARGET_ESP32C6
+      led.begin();
+      led.setBrightness(LED_BRIGHT);
+      led.setPixelColor(0, COL_RED);
+      led.show();
+    #endif
 
     SNIFFER_SERIAL.println("\n╔══════════════════════════════════╗");
     SNIFFER_SERIAL.println(  "║  IEEE 802.15.4 Sniffer v0.1      ║");
@@ -161,28 +188,33 @@ void setup() {
         SNIFFER_SERIAL.println("ERROR: Failed to start 802.15.4 radio");
         // Stay red on error
         while (true) {
-            led.setPixelColor(0, COL_RED);
-            led.show();
-            delay(500);
-            led.setPixelColor(0, COL_OFF);
-            led.show();
+            #ifdef CONFIG_IDF_TARGET_ESP32C6
+              led.setPixelColor(0, COL_RED);
+              led.show();
+              delay(500);
+              led.setPixelColor(0, COL_OFF);
+              led.show();
+            #endif
             delay(500);
         }
     }
 
-    // Radio up - start blue pulse
-    led.setPixelColor(0, COL_OFF);
-    led.show();
+    #ifdef CONFIG_IDF_TARGET_ESP32C6
+      // Radio up - start blue pulse
+      led.setPixelColor(0, COL_OFF);
+      led.show();
+    #endif
 
     SNIFFER_SERIAL.println("Ready. Commands: c<ch>  h(op)  l(ist)  p(cap)  s(tats)");
-    SNIFFER_SERIAL.println();
-    SNIFFER_SERIAL.println("[CH] Protocol     Src          -> Dst         PAN     Function          RSSI    Len");
-    SNIFFER_SERIAL.println("-------------------------------------------------------------------------------------");
+    printheader();
 }
+
 
 // -- loop() -------------------------------------------------------------------
 void loop() {
     sniffer.update();
     handleSerial();
-    ledUpdate();
+    #ifdef CONFIG_IDF_TARGET_ESP32C6
+      ledUpdate();
+    #endif
 }
