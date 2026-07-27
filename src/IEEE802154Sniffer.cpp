@@ -13,12 +13,6 @@ extern "C" {
 
 #include "IEEE802154Sniffer.h"
 
-// #if defined(ARDUINO_USB_CDC_ON_BOOT) && ARDUINO_USB_CDC_ON_BOOT
-//   #define SNIFFER_SERIAL USBSerial
-// #else
-  #define SNIFFER_SERIAL Serial
-// #endif
-
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
@@ -36,9 +30,6 @@ QueueHandle_t IEEE802154Sniffer::_rxQueue = nullptr;
 
 static const uint8_t HOP_CHANNELS[] = {11,15,20,25,26,12,16,21};
 static const uint8_t HOP_COUNT = sizeof(HOP_CHANNELS);
-
-static const bool no_bcast = true;
-static const bool no_duplicates = true;
 
 // -- ISR callback --------------------------------------------------------------
 void IEEE802154Sniffer::rxCallback(uint8_t *frame,
@@ -61,19 +52,23 @@ void IEEE802154Sniffer::rxCallback(uint8_t *frame,
 }
 
 // -- Constructor ---------------------------------------------------------------
+// Default channel at Home = 26
 IEEE802154Sniffer::IEEE802154Sniffer()
-    : _channel(SNIFFER_DEFAULT_CHANNEL), _running(false)
+    : _channel(SNIFFER_DEFAULT_CHANNEL)
+    , _initialised(false), _running(false)
     , _hopping(false), _hopInterval(500), _lastHop(0), _hopIdx(0)
     , _frameCount(0), _zbCount(0), _threadCount(0), _dropped(0)
     , _pcapOut(nullptr), onFrame(nullptr)
 {}
 
-// -- begin() ------------------------------------------------------------------
-bool IEEE802154Sniffer::begin(uint8_t channel) {
+// -- init() - radio setup only, no RX -----------------------------------------
+bool IEEE802154Sniffer::init(uint8_t channel) {
     _channel = constrain(channel, SNIFFER_MIN_CHANNEL, SNIFFER_MAX_CHANNEL);
 
-    _rxQueue = xQueueCreate(SNIFFER_QUEUE_DEPTH, sizeof(SnifferFrame));
-    if (!_rxQueue) return false;
+    if (!_rxQueue) {
+        _rxQueue = xQueueCreate(SNIFFER_QUEUE_DEPTH, sizeof(SnifferFrame));
+        if (!_rxQueue) return false;
+    }
 
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -92,13 +87,45 @@ bool IEEE802154Sniffer::begin(uint8_t channel) {
     uint8_t eui64[8] = {};
     esp_read_mac(eui64, ESP_MAC_IEEE802154);
     esp_ieee802154_set_extended_address(eui64);
-
     esp_ieee802154_set_channel(_channel);
-    if (esp_ieee802154_receive() != ESP_OK) return false;
 
-    _running = true;
-    SNIFFER_SERIAL.printf("[Sniffer] Started ch %u\n", _channel);
+    _initialised = true;
+
+    // Load default Zigbee Trust Center Link Key "ZigBeeAlliance09"
+    addKey(ZbKeyType::TRUST_CENTER_LINK, ZIGBEE_DEFAULT_TCLK, 0, "Default TCLK");
+
+    Serial.printf("[Sniffer] Initialised ch %u\n", _channel);
     return true;
+}
+
+// -- start() - begin receiving -------------------------------------------------
+bool IEEE802154Sniffer::start() {
+    if (!_initialised && !init(_channel)) return false;
+    if (_running) return true;
+    if (esp_ieee802154_receive() != ESP_OK) return false;
+    _running = true;
+    Serial.printf("[Sniffer] RX started ch %u\n", _channel);
+    return true;
+}
+
+// -- stop() - halt RX, radio stays configured ----------------------------------
+bool IEEE802154Sniffer::stop() {
+    if (!_running) return true;
+    esp_ieee802154_sleep();
+    _running = false;
+    Serial.println("[Sniffer] RX stopped");
+    return true;
+}
+
+// -- restart() -----------------------------------------------------------------
+bool IEEE802154Sniffer::restart() {
+    stop();
+    return start();
+}
+
+// -- begin() - legacy: init + start in one call --------------------------------
+bool IEEE802154Sniffer::begin(uint8_t channel) {
+    return init(channel) && start();
 }
 
 // -- Channel control -----------------------------------------------------------
@@ -123,7 +150,7 @@ void IEEE802154Sniffer::updateChannelHop() {
     _lastHop = millis();
     _hopIdx = (_hopIdx + 1) % HOP_COUNT;
     setChannel(HOP_CHANNELS[_hopIdx]);
-    SNIFFER_SERIAL.printf("\r[Hop] CH:%02u  frames:%lu  ", _channel, _frameCount);
+    Serial.printf("\r[Hop] CH:%02u  frames:%lu  ", _channel, _frameCount);
 }
 
 // -- PCap ----------------------------------------------------------------------
@@ -134,12 +161,12 @@ void IEEE802154Sniffer::startPcap(Stream *out) {
         0, 0, SNIFFER_MAX_FRAME_LEN, PCAP_LINKTYPE_802154
     };
     _pcapOut->write((uint8_t*)&gh, sizeof(gh));
-    SNIFFER_SERIAL.println("[Sniffer] PCap started");
+    Serial.println("[Sniffer] PCap started");
 }
 
 void IEEE802154Sniffer::stopPcap() {
     _pcapOut = nullptr;
-    SNIFFER_SERIAL.println("[Sniffer] PCap stopped");
+    Serial.println("[Sniffer] PCap stopped");
 }
 
 void IEEE802154Sniffer::_writePcap(const SnifferFrame &raw) {
@@ -168,10 +195,20 @@ uint8_t IEEE802154Sniffer::update() {
             if (info.protocol == FrameProtocol::THREAD ||
                 info.protocol == FrameProtocol::MATTER)  _threadCount++;
 
-            // _updateHost(info);
-            if (no_duplicates && _updateHost(info)) {
-              _printFrame(info);
+            // Key capture — check every frame, happens before display filters
+            if (onKeyCapture) onKeyCapture(info, raw.data, raw.len);
+
+            if (_updateHost(info) && no_duplicates) {
+              continue;
             }
+
+            // if (no_bcast && info.bcastType != BcastType::NOT_BCAST && info.macSrc == 0xFFFF) 
+            if (no_bcast && info.bcastType != BcastType::NOT_BCAST && is_bcast(info.macSrc)) {
+              continue;
+            }
+
+            _printFrame(info);
+
             if (onFrame) onFrame(info);
         }
         processed++;
@@ -192,6 +229,7 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
     info.len          = len;
     info.protocol     = FrameProtocol::RAW_802154;
     info.hasRoute     = false;
+    info.bcastType    = BcastType::NOT_BCAST;
 
     uint16_t fc      = (uint16_t)p[0] | ((uint16_t)p[1] << 8);
     info.frameType   = fc & FC_FRAME_TYPE_MASK;
@@ -202,6 +240,24 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
     info.panId       = 0xFFFF;
     info.macSrc      = 0xFFFF;
     info.macDst      = 0xFFFF;
+
+    // -- MAC frame control flags -----------------------------------------------
+    info.macSecurityEnabled = (fc >> 3) & 0x01;
+    info.macFramePending    = (fc >> 4) & 0x01;
+    info.macAckRequest      = (fc >> 5) & 0x01;
+    info.macPanIdCompressed = panComp;
+    info.macIsRetry         = (fc >> 8) & 0x01;  // bit8 = frame retry
+
+    // Zigbee NWK fields - zero out
+    info.zbNwkProtoVersion    = 0;
+    info.zbNwkSecurityEnabled = false;
+    info.zbIsMulticast        = false;
+    info.zbMulticastGroup     = 0;
+    info.zbNwkRadius          = 0;
+    info.beaconAssocPermit    = false;
+    info.beaconStackProfile   = 0;
+    info.threadRloc16         = 0;
+    info.threadMleType        = 0;
 
     uint8_t off = 3;
 
@@ -236,6 +292,15 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
         }
     }
 
+    // -- Broadcast type --------------------------------------------------------
+    switch (info.macDst) {
+        case 0xFFFF: info.bcastType = BcastType::ALL;       break;
+        case 0xFFFC: info.bcastType = BcastType::ROUTERS;   break;
+        case 0xFFFB: info.bcastType = BcastType::LP_ROUTERS;break;
+        case 0xFFFD: info.bcastType = BcastType::SLEEPY_ED; break;
+        default:     info.bcastType = BcastType::NOT_BCAST; break;
+    }
+
     // Payload decode
     if (off < len && info.frameType == FC_FRAME_TYPE_DATA) {
         const uint8_t *payload = &p[off];
@@ -253,9 +318,30 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
                 _decodeZigbeeNwk(payload, payLen, info);
             }
         }
-    } else if (info.frameType == FC_FRAME_TYPE_BEACON) {
+    } else if (info.frameType == FC_FRAME_TYPE_BEACON && off + 4 <= len) {
+        // Superframe spec (2 bytes) + GTS fields (1 byte) + pending addr (1 byte)
+        // then optional beacon payload
+        uint16_t superframe = (uint16_t)p[off] | ((uint16_t)p[off+1] << 8);
+        info.beaconCoordinator  = (superframe >> 14) & 0x01;
+        info.beaconAssocPermit  = (superframe >> 15) & 0x01;
+        off += 2;
+        uint8_t gts = p[off++];   // GTS spec byte
+        uint8_t pad = p[off++];   // pending address spec
+
+        // Zigbee beacon payload: starts after MAC header
+        // Format: protocol ID (0x00) | stack profile (4 bits) | proto ver (4 bits)
+        //         | router cap (1) | device depth (4) | end dev cap (1) | extended PAN (8 bytes)
+        if (off + 3 <= len && p[off] == 0x00) {
+            off++;  // skip protocol ID byte
+            uint8_t sp = p[off++];
+            info.beaconStackProfile    = sp & 0x0F;
+            info.beaconProtocolVersion = (sp >> 4) & 0x0F;
+            uint8_t cap = p[off++];
+            info.beaconRouterCapacity  = (cap >> 2) & 0x01;
+            info.beaconEndDevCapacity  = (cap >> 7) & 0x01;
+        }
         info.protocolName = "Beacon";
-        info.functionName = "";
+        info.functionName = info.beaconAssocPermit ? "Open" : "Closed";
     } else if (info.frameType == FC_FRAME_TYPE_ACK) {
         info.protocolName = "ACK";
         info.functionName = "";
@@ -281,14 +367,27 @@ bool IEEE802154Sniffer::_decodeZigbeeNwk(const uint8_t *p, uint8_t len,
                                            FrameInfo &info) {
     if (len < 8) return false;
 
-    uint16_t nwkFc   = (uint16_t)p[0] | ((uint16_t)p[1] << 8);
-    info.zbNwkType   = nwkFc & 0x03;
+    uint16_t nwkFc    = (uint16_t)p[0] | ((uint16_t)p[1] << 8);
+    info.zbNwkType    = nwkFc & 0x03;
     info.route.nwkDst = (uint16_t)p[2] | ((uint16_t)p[3] << 8);
     info.route.nwkSrc = (uint16_t)p[4] | ((uint16_t)p[5] << 8);
     info.route.radius = p[6];
-    // p[7] = NWK seq num
+    uint8_t nwkSeq    = p[7];
 
+    // Extra NWK fields from frame control
+    info.zbNwkProtoVersion    = (nwkFc >> 2) & 0x0F;   // bits[5:2]
+    info.zbNwkSecurityEnabled = (nwkFc >> 1) & 0x01;   // bit1 - NWK layer security
+    info.zbIsMulticast        = (nwkFc >> 8) & 0x01;   // bit8 - multicast flag
+    info.zbNwkRadius          = p[6];
+
+    // Multicast control field - immediately after fixed NWK header if multicast
     uint8_t off = 8;
+    info.zbMulticastGroup = 0;
+    if (info.zbIsMulticast && off + 1 <= len) {
+        // Multicast control byte, then group address at nwkDst
+        info.zbMulticastGroup = info.route.nwkDst;
+        off++;  // skip multicast control byte
+    }
 
     // Optional extended destination address
     if ((nwkFc & ZB_NWK_FC_EXT_DST) && off + 8 <= len) off += 8;
@@ -389,34 +488,140 @@ HostRecord *IEEE802154Sniffer::findHost(uint16_t addr) {
     return nullptr;
 }
 
-// return true if new host.
+bool IEEE802154Sniffer::labelHost(uint16_t addr, char type, const char *label) {
+    HostRecord *h = findHost(addr);
+    if (!h) {
+        h = new HostRecord();
+        h->shortAddr    = addr;
+        h->panId        = 0;
+        h->extAddr      = 0;
+        h->rssiMin = h->rssiMax = h->rssiLast = 0;
+        h->lqiLast = h->channel = 0;
+        h->firstSeen_ms = h->lastSeen_ms = 0;
+        h->frameCount = h->txCount = h->rxCount = 0;
+        h->retryCount = h->secureCount = h->acksMissed = 0;
+        h->seqGaps = h->nwkProtoVersion = 0;
+        h->beaconSeen = h->associationPermit = false;
+        h->routerCapacity = h->endDevCapacity = false;
+        h->lastMacSeq = h->lastNwkSeq = 0;
+        h->lastPollTime_ms = h->avgPollInterval_ms = 0;
+        h->deviceType   = DeviceType::UNKNOWN;
+        h->protocol     = FrameProtocol::RAW_802154;
+        memset(h->label, 0, sizeof(h->label));
+        hosts.add(h);
+    }
+    // Set device type from char
+    switch (type) {
+        case 'C': case 'c': h->deviceType = DeviceType::COORDINATOR; break;
+        case 'R': case 'r': h->deviceType = DeviceType::ROUTER;      break;
+        case 'E': case 'e': h->deviceType = DeviceType::END_DEVICE;  break;
+        default:            h->deviceType = DeviceType::UNKNOWN;      break;
+    }
+    strncpy(h->label, label, SNIFFER_MAX_LABEL_LEN - 1);
+    h->label[SNIFFER_MAX_LABEL_LEN - 1] = '\0';
+    return true;
+}
+
+void IEEE802154Sniffer::loadLabels(const char *csv) {
+    // Format: "addr,type,label\n" - addr is hex without 0x prefix
+    // e.g. "16CC,E,On-Off W Button\n1A2E,R,Color Bulb 1\n"
+    if (!csv) return;
+    char buf[64];
+    const char *p = csv;
+    while (*p) {
+        // Find end of line
+        const char *eol = strchr(p, '\n');
+        size_t lineLen = eol ? (size_t)(eol - p) : strlen(p);
+        if (lineLen == 0) { p = eol ? eol + 1 : p + strlen(p); continue; }
+        if (lineLen >= sizeof(buf)) { p = eol ? eol + 1 : p + strlen(p); continue; }
+
+        memcpy(buf, p, lineLen);
+        buf[lineLen] = '\0';
+
+        // Parse addr,type,label
+        char *tok = strtok(buf, ",");
+        if (!tok) { p = eol ? eol + 1 : p + strlen(p); continue; }
+        uint16_t addr = (uint16_t)strtol(tok, nullptr, 16);
+
+        tok = strtok(nullptr, ",");
+        if (!tok) { p = eol ? eol + 1 : p + strlen(p); continue; }
+        char type = tok[0];
+
+        tok = strtok(nullptr, "\n");
+        const char *label = tok ? tok : "";
+
+        labelHost(addr, type, label);
+        p = eol ? eol + 1 : p + strlen(p);
+    }
+    Serial.printf("[Sniffer] Loaded %d host labels\n", hosts.size());
+}
+
+const char *IEEE802154Sniffer::addrLabel(uint16_t addr, char *buf, uint8_t bufLen) {
+    if (addr == 0xFFFF) { strncpy(buf, "BCAST", bufLen); return buf; }
+    if (addr == 0xFFFC) { strncpy(buf, "ROUTERS", bufLen); return buf; }
+    if (addr == 0xFFFB) { strncpy(buf, "LP_RTR", bufLen); return buf; }
+    if (addr == 0xFFFD) { strncpy(buf, "SLEEPY", bufLen); return buf; }
+    HostRecord *h = findHost(addr);
+    if (h && h->label[0] != '\0') {
+        strncpy(buf, h->label, bufLen - 1);
+        buf[bufLen - 1] = '\0';
+        return buf;
+    }
+    snprintf(buf, bufLen, "0x%04X", addr);
+    return buf;
+}
+
 bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
     uint32_t now = millis();
 
-    bool ret = false;
+    // Serial.printf("DEBUG _updateHost macSrc=0x%04X macDst=0x%04X\n", info.macSrc, info.macDst);
 
-    // Update or create record for MAC src
+    bool ret_val = true;
+
     auto updateRecord = [&](uint16_t addr, bool isSrc) {
-        if (addr == 0xFFFF || addr == 0xFFFE || addr == 0x0000) {
-            if (addr != 0x0000) return;  // keep coordinator
-        }
+        if (is_bcast(addr))
+          return;
+       //  if (addr == 0xFFFF || addr == 0xFFFE || addr == 0xFFFB ||
+       //      addr == 0xFFFC || addr == 0xFFFD) return;  // skip all broadcast addrs
+
         HostRecord *h = findHost(addr);
         if (!h) {
-            ret = true;
+            ret_val = false;
             h = new HostRecord();
-            h->shortAddr   = addr;
-            h->extAddr     = 0;
-            h->panId       = info.panId;
-            h->rssiMin     = info.rssi;
-            h->rssiMax     = info.rssi;
+            h->shortAddr    = addr;
+            h->panId        = info.panId;
+            h->extAddr      = 0;
+            h->rssiMin      = info.rssi;
+            h->rssiMax      = info.rssi;
+            h->rssiLast     = info.rssi;
+            h->lqiLast      = info.lqi;
+            h->channel      = info.channel;
             h->firstSeen_ms = now;
-            h->txCount     = 0;
-            h->rxCount     = 0;
-            h->frameCount  = 0;
-            h->deviceType  = (addr == 0x0000) ? DeviceType::COORDINATOR : DeviceType::UNKNOWN;
-            h->protocol    = info.protocol;
+            h->lastSeen_ms  = now;
+            h->frameCount   = 0;
+            h->txCount      = 0;
+            h->rxCount      = 0;
+            h->retryCount   = 0;
+            h->secureCount  = 0;
+            h->acksMissed   = 0;
+            h->seqGaps      = 0;
+            h->nwkProtoVersion = 0;
+            h->beaconSeen   = false;
+            h->associationPermit = false;
+            h->routerCapacity = false;
+            h->endDevCapacity = false;
+            h->lastMacSeq   = info.seqNum;
+            h->lastNwkSeq   = 0;
+            h->lastPollTime_ms = 0;
+            h->avgPollInterval_ms = 0;
+            h->deviceType   = (addr == 0x0000) ? DeviceType::COORDINATOR
+                                                : DeviceType::UNKNOWN;
+            h->protocol     = info.protocol;
+            memset(h->label, 0, sizeof(h->label));
             hosts.add(h);
         }
+
+        // RSSI / LQI
         h->rssiLast    = info.rssi;
         h->lqiLast     = info.lqi;
         h->channel     = info.channel;
@@ -427,7 +632,64 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
         if (isSrc) h->txCount++;
         else       h->rxCount++;
 
-        // Infer router if it appears in relay list
+        // if (isSrc) h->connected_hosts.add(info.macDst);
+        // if (isSrc) h->connected_hosts.add(new uint16_t(info.macDst));
+        if (isSrc && !is_bcast(info.macDst) && info.macDst)  {
+          bool jj = true;
+          for (int j = 0; j < h->connected_hosts.size(); j++) {
+            if (h->connected_hosts.get(j) == info.macDst) {
+              jj = false;
+              break;
+            }
+          }
+          if (jj) 
+            h->connected_hosts.add(info.macDst);
+        }
+
+        // Retry / security counts
+        if (info.macIsRetry)          h->retryCount++;
+        if (info.macSecurityEnabled)  h->secureCount++;
+
+        // Sequence gap detection (source frames only)
+        if (isSrc) {
+            uint8_t expected = h->lastMacSeq + 1;
+            if (h->frameCount > 1 && info.seqNum != expected && !info.macIsRetry)
+                h->seqGaps++;
+            h->lastMacSeq = info.seqNum;
+        }
+
+        // Zigbee NWK info
+        if (info.protocol == FrameProtocol::ZIGBEE) {
+            if (info.zbNwkProtoVersion > h->nwkProtoVersion)
+                h->nwkProtoVersion = info.zbNwkProtoVersion;
+        }
+
+        // Beacon info
+        if (info.frameType == FC_FRAME_TYPE_BEACON && isSrc) {
+            h->beaconSeen        = true;
+            h->associationPermit = info.beaconAssocPermit;
+            h->routerCapacity    = info.beaconRouterCapacity;
+            h->endDevCapacity    = info.beaconEndDevCapacity;
+            // Beacon senders are coordinators or routers
+            if (h->deviceType == DeviceType::UNKNOWN)
+                h->deviceType = DeviceType::ROUTER;
+        }
+
+        // Poll interval inference - MAC Cmd frames from sleepy end devices
+        // (frame pending + data request pattern)
+        if (info.frameType == FC_FRAME_TYPE_MAC_CMD && isSrc &&
+            !info.macFramePending) {
+            if (h->lastPollTime_ms > 0) {
+                uint32_t interval = now - h->lastPollTime_ms;
+                // Rolling average (simple EMA with alpha=0.25)
+                if (h->avgPollInterval_ms == 0)
+                    h->avgPollInterval_ms = interval;
+                else
+                    h->avgPollInterval_ms = (h->avgPollInterval_ms * 3 + interval) / 4;
+                h->deviceType = DeviceType::END_DEVICE;
+            }
+            h->lastPollTime_ms = now;
+        }
     };
 
     updateRecord(info.macSrc, true);
@@ -455,16 +717,17 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
             r->deviceType = DeviceType::ROUTER;
         }
     }
-
-    return ret;
+    return ret_val;
 }
 
 void IEEE802154Sniffer::printHosts() {
-    SNIFFER_SERIAL.println("\n-- Host List ------------------------------------------------");
-    SNIFFER_SERIAL.println("  Addr   Type        Proto   Frames  TX    RX    RSSI(last/min/max) LQI");
-    SNIFFER_SERIAL.println("  -----------------------------------------------------------------");
+    Serial.println("\n-- Host List -------------------------------------------------------------");
+    Serial.println("  Ch Addr   Label                Type        Frames  TX    RX   RSSI(l/n/x) LQI");
+    Serial.println("  -----------------------------------------------------------------------");
     for (int i = 0; i < hosts.size(); i++) {
         HostRecord *h = hosts.get(i);
+        if (!h->frameCount) 
+          continue;
         const char *dtype = "Unknown";
         if (h->deviceType == DeviceType::COORDINATOR) dtype = "Coordinator";
         else if (h->deviceType == DeviceType::ROUTER)  dtype = "Router";
@@ -472,54 +735,63 @@ void IEEE802154Sniffer::printHosts() {
         const char *proto = "802.15.4";
         if (h->protocol == FrameProtocol::ZIGBEE) proto = "Zigbee";
         else if (h->protocol == FrameProtocol::THREAD) proto = "Thread";
-        SNIFFER_SERIAL.printf("  0x%04X %-12s %-8s %6lu %5lu %5lu  %4d/%4d/%4d  %3u\n",
-            h->shortAddr, dtype, proto,
+        Serial.printf("  %u 0x%04X %-20s %-12s %6lu %5lu %5lu %4d/%4d/%4d %3u %d",
+            h->channel,
+            h->shortAddr,
+            h->label[0] ? h->label : "",
+            dtype,
             h->frameCount, h->txCount, h->rxCount,
-            h->rssiLast, h->rssiMin, h->rssiMax, h->lqiLast);
+            h->rssiLast, h->rssiMin, h->rssiMax, h->lqiLast,
+            h->connected_hosts.size());
+        if (h->connected_hosts.size() > 0) {
+            Serial.print("\n   connected:");
+              for (int j = 0; j < h->connected_hosts.size(); j++) {  //  check uniq
+                  Serial.printf(" 0x%04X", h->connected_hosts.get(j));
+              }
+        }
+        Serial.println();
     }
-    SNIFFER_SERIAL.println("--------------------------------------------------------------\n");
+    Serial.println("------------------------------------------------------------------------\n");
 }
 
 // -- Serial output -------------------------------------------------------------
 void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
-    // MAC hop
-    char macSrc[10], macDst[10];
+    char srcBuf[SNIFFER_MAX_LABEL_LEN + 4];
+    char dstBuf[SNIFFER_MAX_LABEL_LEN + 4];
+    char nwkSrcBuf[SNIFFER_MAX_LABEL_LEN + 4];
+    char nwkDstBuf[SNIFFER_MAX_LABEL_LEN + 4];
 
-    // if (no_bcast && info.macSrc == 0xFFFF && info.macDst == 0xFFFF)
-    //    return;
-
-    snprintf(macSrc, sizeof(macSrc),
-             info.macSrc == 0xFFFF ? "BCAST" : "0x%04X", info.macSrc);
-    snprintf(macDst, sizeof(macDst),
-             info.macDst == 0xFFFF ? "BCAST" : "0x%04X", info.macDst);
+    addrLabel(info.macSrc, srcBuf, sizeof(srcBuf));
+    addrLabel(info.macDst, dstBuf, sizeof(dstBuf));
 
     if (!info.hasRoute || (info.route.nwkSrc == info.macSrc &&
                             info.route.nwkDst == info.macDst &&
                             info.route.hopCount == 0)) {
-
-        // Direct / no route info - single line
-        SNIFFER_SERIAL.printf("[%02u] %-8s  %s→%s  PAN:%04X  %-16s  RSSI:%4d LQI:%3u  %3uB\n",
+        Serial.printf("[%02u] %-8s  %-10s→%-10s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.channel, info.protocolName,
-            macSrc, macDst, info.panId,
+            srcBuf, dstBuf, info.panId,
             info.functionName ? info.functionName : "",
             info.rssi, info.lqi, info.len);
     } else {
+        addrLabel(info.route.nwkSrc, nwkSrcBuf, sizeof(nwkSrcBuf));
+        addrLabel(info.route.nwkDst, nwkDstBuf, sizeof(nwkDstBuf));
 
-        // Has route - print full path
-        SNIFFER_SERIAL.printf("[%02u] %-8s  MAC:%s→%-6s  NWK:0x%04X→0x%04X",
+        Serial.printf("[%02u] %-8s  MAC:%-6s→%-10s  NWK:%-10s→%-10s",
             info.channel, info.protocolName,
-            macSrc, macDst,
-            info.route.nwkSrc, info.route.nwkDst);
+            srcBuf, dstBuf, nwkSrcBuf, nwkDstBuf);
 
         if (info.route.hopCount > 0) {
-            SNIFFER_SERIAL.print("  Route:[");
-            SNIFFER_SERIAL.printf("0x%04X", info.route.nwkSrc);
-            for (uint8_t i = 0; i < info.route.hopCount; i++)
-                SNIFFER_SERIAL.printf("→0x%04X", info.route.relays[i]);
-            SNIFFER_SERIAL.printf("→0x%04X]", info.route.nwkDst);
+            Serial.print("  Route:[");
+            Serial.print(nwkSrcBuf);
+            for (uint8_t i = 0; i < info.route.hopCount; i++) {
+                char relayBuf[SNIFFER_MAX_LABEL_LEN + 4];
+                addrLabel(info.route.relays[i], relayBuf, sizeof(relayBuf));
+                Serial.printf("→%s", relayBuf);
+            }
+            Serial.printf("→%s]", nwkDstBuf);
         }
 
-        SNIFFER_SERIAL.printf("  %-16s  RSSI:%3d LQI:%3u  %3uB\n",
+        Serial.printf("  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.functionName ? info.functionName : "",
             info.rssi, info.lqi, info.len);
     }
@@ -545,4 +817,133 @@ const char *IEEE802154Sniffer::_zbNwkCmdName(uint8_t c) {
         case 0x0B: return "ED Timeout Req";   case 0x0C: return "ED Timeout Rsp";
         default:   return "NWK Cmd";
     }
+}
+
+// -- Key management ------------------------------------------------------------
+
+bool IEEE802154Sniffer::addKey(ZbKeyType type, const uint8_t *key16,
+                                uint8_t seqNum, const char *label) {
+    if (!key16) return false;
+
+    // Check for duplicate (same type + seqNum)
+    for (int i = 0; i < keys.size(); i++) {
+        ZbKey *k = keys.get(i);
+        if (k->type == type && k->seqNum == seqNum) {
+            // Update existing key
+            memcpy(k->key, key16, ZIGBEE_KEY_LEN);
+            k->capturedAt_ms = millis();
+            if (label) strncpy(k->label, label, sizeof(k->label) - 1);
+            Serial.printf("[Keys] Updated %s key seq=%u\n",
+                          type == ZbKeyType::NETWORK ? "Network" : "TCLK", seqNum);
+            return true;
+        }
+    }
+
+    // Add new key
+    ZbKey *k = new ZbKey();
+    k->type          = type;
+    k->seqNum        = seqNum;
+    k->capturedAt_ms = millis();
+    memcpy(k->key, key16, ZIGBEE_KEY_LEN);
+    memset(k->label, 0, sizeof(k->label));
+    if (label) strncpy(k->label, label, sizeof(k->label) - 1);
+    keys.add(k);
+
+    Serial.printf("[Keys] Added %s key seq=%u label='%s'\n",
+                  type == ZbKeyType::NETWORK           ? "Network" :
+                  type == ZbKeyType::TRUST_CENTER_LINK ? "TCLK"    : "App",
+                  seqNum, k->label);
+    return true;
+}
+
+ZbKey *IEEE802154Sniffer::findNetworkKey(uint8_t seqNum) {
+    for (int i = 0; i < keys.size(); i++) {
+        ZbKey *k = keys.get(i);
+        if (k->type == ZbKeyType::NETWORK && k->seqNum == seqNum) return k;
+    }
+    return nullptr;
+}
+
+bool IEEE802154Sniffer::hasNetworkKey() {
+    for (int i = 0; i < keys.size(); i++) {
+        if (keys.get(i)->type == ZbKeyType::NETWORK) return true;
+    }
+    return false;
+}
+
+void IEEE802154Sniffer::printKeys() {
+    Serial.println("\n-- Zigbee Keys --------------------------------------------------");
+    Serial.println("  Type        Seq  Label            Key");
+    Serial.println("  --------------------------------------------------------------");
+    for (int i = 0; i < keys.size(); i++) {
+        ZbKey *k = keys.get(i);
+        const char *tname = k->type == ZbKeyType::NETWORK           ? "Network   " :
+                            k->type == ZbKeyType::TRUST_CENTER_LINK ? "TCLK      " : "App       ";
+        Serial.printf("  %s %3u  %-16s ", tname, k->seqNum, k->label);
+        for (int j = 0; j < ZIGBEE_KEY_LEN; j++)
+            Serial.printf("%02X%s", k->key[j], j < ZIGBEE_KEY_LEN-1 ? ":" : "");
+        if (k->capturedAt_ms > 0 && k->type != ZbKeyType::TRUST_CENTER_LINK)
+            Serial.printf("  (sniffed +%lus)", k->capturedAt_ms / 1000);
+        Serial.println();
+    }
+    Serial.println("----------------------------------------------------------------\n");
+}
+
+// -- Zigbee NWK security header extraction ------------------------------------
+// NWK security header layout (when zbNwkSecurityEnabled):
+//   Aux frame control (1) | frame counter (4) | src address (0 or 8) |
+//   key seq num (1) | MIC (4) | payload (encrypted)
+bool IEEE802154Sniffer::_extractSecurityHeader(const uint8_t *p, uint8_t len,
+                                                uint32_t &frameCounter,
+                                                uint8_t &keySeqNum) {
+    if (len < 6) return false;
+    uint8_t auxCtrl = p[0];
+    // bits[4:3] = key identifier mode (00=data,01=NWK,10=key-transport,11=key-load)
+    uint8_t keyIdMode = (auxCtrl >> 3) & 0x03;
+    bool    hasExtSrc = (auxCtrl >> 6) & 0x01;
+
+    frameCounter = (uint32_t)p[1] | ((uint32_t)p[2] << 8) |
+                   ((uint32_t)p[3] << 16) | ((uint32_t)p[4] << 24);
+
+    uint8_t off = 5;
+    if (hasExtSrc && off + 8 <= len) off += 8;  // skip extended src
+
+    if (off + 1 <= len) {
+        keySeqNum = p[off];
+        return true;
+    }
+    return false;
+}
+
+// -- Intercept network key from APS Transport Key command ---------------------
+// When a device joins, coordinator sends NWK key encrypted with TCLK.
+// APS layer command 0x05 = Transport Key, key type 0x01 = Network Key.
+// Without decryption we can at least detect the event and log the key seq num.
+// Full decryption via mbedtls AES-128-CCM* to be added later.
+bool IEEE802154Sniffer::_tryExtractNetworkKey(const FrameInfo &info,
+                                               const uint8_t *payload,
+                                               uint8_t payloadLen) {
+    // Only relevant for encrypted NWK frames with APS data
+    if (!info.zbNwkSecurityEnabled) return false;
+    if (payloadLen < 10) return false;
+
+    uint32_t frameCounter = 0;
+    uint8_t  keySeqNum    = 0;
+    if (!_extractSecurityHeader(payload, payloadLen, frameCounter, keySeqNum)) {
+        return false;
+    }
+
+    // Log the security header - decryption attempt comes in a future step
+    Serial.printf("[Keys] Encrypted NWK frame: src=0x%04X seq=%u fc=%lu\n",
+                  info.route.nwkSrc, keySeqNum, frameCounter);
+
+    // If we already have a network key for this seq num, note it's in use
+    ZbKey *nk = findNetworkKey(keySeqNum);
+    if (nk) {
+        Serial.printf("[Keys] Known network key seq=%u active\n", keySeqNum);
+    } else {
+        Serial.printf("[Keys] Unknown network key seq=%u - need capture\n", keySeqNum);
+    }
+
+    return false;  // decryption not yet implemented - returns true when key extracted
 }
