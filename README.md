@@ -56,7 +56,7 @@ reads /labels.csv if SD (if exists) for device names
 ## Future roadmap
 
 - [ ] TFT display (TFT_eSPI) — hook is in `onSnifferFrame()`
-- [ ] PCap recording to SD card
+- ~~[ ] PCap recording to SD card~~
 - [ ] ESP32-C5 support
 - [ ] Marauder v2/v3 integration
 
