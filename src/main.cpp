@@ -116,7 +116,71 @@ IEEE802154Sniffer sniffer;
 SnifferSD         sd;
 ZbKeyCapture      keyCapture(sniffer);
 static bool hopping = false;
+static uint32_t _channelScan = 0;
 
+
+void print_active_ch() {
+  Serial.print("Active Channels:");
+  for (uint8_t i = SNIFFER_MIN_CHANNEL; i <= SNIFFER_MAX_CHANNEL; i++) {
+    if (sniffer.active_channels[i - 10]) {
+      Serial.print(" ");
+      Serial.print(i);
+    }
+    if (_channelScan)
+      Serial.println("Channel Scan Active");
+  }
+}
+
+void startScanChannels() {
+  sniffer.stopChannelHop();
+  hopping = false;
+  sniffer.setChannel(SNIFFER_MIN_CHANNEL);
+  ledFlash(COL_WHITE, 100);
+  _channelScan = millis() + 1000;
+
+  // channel 0 is a flag
+  sniffer.active_channels[0] = 1;
+  // SEND Request beacons
+}
+
+void scanChannels() {
+
+    if (!_channelScan) { // if Zero we are not scanning
+      return;
+    }
+    uint32_t now = millis();
+    if (now < _channelScan)
+      return;
+
+    uint8_t ch = sniffer.getChannel() + 1;
+
+    if (ch > SNIFFER_MAX_CHANNEL) {
+        _channelScan = 0; // Stop Scan
+
+        // look Through capture list and mark channels
+
+        //  [[clang::suppress("type", "bounds")]];
+        for (int i = 0; i < sniffer.hosts.size(); i++) {
+          HostRecord *h = sniffer.hosts.get(i);
+          if(h->channel)
+            __attribute__((suppress))
+            sniffer.active_channels[h->channel -10]++;
+            [[clang::suppress]];
+
+        }
+
+        print_active_ch();
+        return;
+    }
+
+    sniffer.setChannel(ch);
+    ledFlash(COL_WHITE, 100);
+
+    // SEND Request beacons
+
+    // restart timer
+    _channelScan = millis() + 1000;
+}
 
 void show_header() {
     Serial.println();
@@ -182,17 +246,26 @@ void handleSerial() {
         Serial.printf("  Thread   : %lu\n", sniffer.getThreadCount());
         Serial.printf("  Dropped  : %lu\n", sniffer.getDroppedCount());
         Serial.println("-----------------------------------");
+        if (sniffer.active_channels[0]) {
+          print_active_ch();
+        }
+    } else if (cmd == "S") {
+        Serial.println("Start Channel scan");
+        startScanChannels();
     } else if (cmd == "r") {
         Serial.println("Stats reset");
     } else if (cmd == "l") {
         sniffer.printHosts();
-    } else if (cmd == "p") {
-        if (sniffer.isPcapActive()) {
-            sniffer.stopPcap();
-        } else {
-            // For now write to Serial - replace with SD File in future
-            sniffer.startPcap(&Serial);
-        }
+
+//   Duplicate
+//    } else if (cmd == "p") {
+//        if (sniffer.isPcapActive()) {
+//            sniffer.stopPcap();
+//        } else {
+//            // For now write to Serial - replace with SD File in future
+//            sniffer.startPcap(&Serial);
+//        }
+
     } else if (cmd == "p") {
         if (sd.isPcapOpen()) sd.stopPcap(sniffer);
         else if (sd.isMounted()) sd.startPcap(sniffer);
@@ -226,7 +299,7 @@ void handleSerial() {
     } else if (cmd == "k") {
         sniffer.printKeys();
     } else {
-        Serial.println("Commands: c<ch>  h(op)  k(eys)  l(ist)  p(cap)  s(tats) H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
+        Serial.println("Commands: c<ch>  h(op)  k(eys)  l(ist)  p(cap)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
     }
 }
 

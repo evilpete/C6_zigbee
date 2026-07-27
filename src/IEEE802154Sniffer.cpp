@@ -164,6 +164,7 @@ void IEEE802154Sniffer::startPcap(Stream *out) {
     Serial.println("[Sniffer] PCap started");
 }
 
+
 void IEEE802154Sniffer::stopPcap() {
     _pcapOut = nullptr;
     Serial.println("[Sniffer] PCap stopped");
