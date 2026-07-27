@@ -162,7 +162,7 @@ void scanChannels() {
         //  [[clang::suppress("type", "bounds")]];
         for (int i = 0; i < sniffer.hosts.size(); i++) {
           HostRecord *h = sniffer.hosts.get(i);
-          if(h->channel)
+          if (h->channel)
             __attribute__((suppress))
             sniffer.active_channels[h->channel -10]++;
             [[clang::suppress]];
@@ -221,14 +221,14 @@ void handleSerial() {
       show_header();
 
     } else if (cmd == "B") {
-      if (sniffer.no_bcast) 
+      if (sniffer.no_bcast)
         sniffer.no_bcast = false;
       else
         sniffer.no_bcast = true;
       Serial.printf("Show %s bcast\n", sniffer.no_bcast ? "No" : "" );
 
     } else if (cmd == "U") {
-      if (sniffer.no_duplicates) 
+      if (sniffer.no_duplicates)
         sniffer.no_duplicates = false;
       else
         sniffer.no_duplicates = true;
@@ -288,7 +288,7 @@ void handleSerial() {
         int c1 = rest.indexOf(',');
         int c2 = rest.indexOf(',', c1 + 1);
         if (c1 > 0 && c2 > c1) {
-            uint16_t addr = (uint16_t)strtol(rest.substring(0, c1).c_str(), nullptr, 16);
+            uint16_t addr = static_cast<uint16_t>strtol(rest.substring(0, c1).c_str(), nullptr, 16);
             char type = rest.charAt(c1 + 1);
             String label = rest.substring(c2 + 1);
             if (sniffer.labelHost(addr, type, label.c_str()))
