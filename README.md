@@ -37,11 +37,11 @@ pio run -t upload -t monitor
 | `s`     | Print stats |
 | `r`     | Reset stats |
 | `k`     | Print captured crypto keys |
-| `p`     | save Pcap file to SD card |
-| `S`     | scan all channels with a "Beacon Request"|
+| `p`     | Start/Stop saving Pcap file to SD card |
+| `S`     | Scan all channels with a "Beacon Request"|
 | `H`     | (re)print column header
-| `U`     | show or hide duplicate host in scan output
-| `H`     | show or hide podcast packets in scan output
+| `U`     | Show or hide duplicate host in scan output
+| `B`     | Show or hide Broadcast packets in scan output
 
 
 reads /labels.csv if SD (if exists) for device names
