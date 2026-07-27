@@ -36,6 +36,15 @@ pio run -t upload -t monitor
 | `h`     | Toggle channel hop mode (500ms per channel) |
 | `s`     | Print stats |
 | `r`     | Reset stats |
+| `k`     | Print captured crypto keys |
+| `p`     | save Pcap file to SD card |
+| `S`     | scan all channels with a "Beacon Request"|
+| `H`     | (re)print column header
+| `U`     | show or hide duplicate host in scan output
+| `H`     | show or hide podcast packets in scan output
+
+
+reads /labels.csv if SD (if exists) for device names
 
 ## Channels
 
