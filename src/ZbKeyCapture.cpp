@@ -354,6 +354,8 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
                                        uint8_t *plaintextOut,
                                        uint8_t &plaintextLen) {
 
+    
+
     // APS FC is at apsOffset — APS AUX header starts at apsOffset+1
     uint8_t auxStart = apsOffset + 1;
     if (auxStart + 6 > nwkLen) return false;
@@ -379,6 +381,9 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     if (auxOff + 1 > (nwkLen - auxStart)) return false;
     auxOff++;  // skip keySeq
 
+
+
+
     // Ciphertext starts after AUX header, ends before MIC
     uint8_t encStart = auxStart + auxOff;
     if (encStart + ZB_MIC_LEN >= nwkLen) return false;
@@ -399,6 +404,13 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     // i.e. nwkPayload[0..apsOffset] inclusive
     const uint8_t *aad = nwkPayload;
     uint8_t aadLen = auxStart;  // up to but not including the AUX header
+
+
+    Serial.printf("[KC] nonce: %02X%02X%02X%02X%02X%02X%02X%02X fc=%08lX sc=%02X\n",
+    srcEui64[0],srcEui64[1],srcEui64[2],srcEui64[3],
+    srcEui64[4],srcEui64[5],srcEui64[6],srcEui64[7],
+    frameCounter, secCtrl);
+    Serial.printf("[KC] encStart=%u encLen=%u aadLen=%u\n", encStart, encLen, aadLen);
 
     bool ok = _ccmDecrypt(key, nonce, aad, aadLen,
                            ciphertext, encLen,
