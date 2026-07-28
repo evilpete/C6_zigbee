@@ -132,8 +132,8 @@ void print_active_ch() {
       Serial.print(" ");
       Serial.print(i);
     }
-    Serial.println();
   }
+  Serial.println();
 }
 
 
