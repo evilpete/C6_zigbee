@@ -1,0 +1,1382 @@
+Script started on Tue Jul 28 16:48:52 2026
+	 Connected!
+[SD] Mounted — 3840MB  free: 3831MB
+[Sniffer] Loaded 28 host labels
+[SD] Loaded labels from /labels.csv
+[SD] Files:
+  .Spotlight-V100                       0 bytes
+  labels.csv                          566 bytes
+  hosts.json                         9093 bytes
+  keys.json                           131 bytes
+Ready. Commands: c<ch>  h(op)  k(eys)  K(→SD)  l(ist)  p(cap)  W(rite)  F(iles)  s(tats)
+
+[CH] Protocol     Src          -> Dst         PAN     Function          RSSI    Len
+-------------------------------------------------------------------------------------
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-93 LQI:  8    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-103 LQI:  7    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  5    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  6    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0xADB9 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0xADB9    →ROUTERS     NWK Cmd     RSSI:-41 LQI: 10   63B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  7    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  6    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-105 LQI:  6    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-83 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-64 LQI: 11    3B
+[26] MAC Cmd   0xCEBA      →0xADB9        PAN:6A58  Data Request  RSSI:-34 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xD76B bcast=0
+[26] Zigbee    MAC:Soil_Monitor_6→Color Bulb 2  NWK:Soil_Monitor_6→Hub         Data        RSSI:-82 LQI:  9   51B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-64 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xD76B bcast=0
+[26] Zigbee    MAC:Color Bulb 2→0xADB9      NWK:Soil_Monitor_6→Hub         NWK Cmd     RSSI:-64 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xD76B bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:Soil_Monitor_6→Hub         NWK Cmd     RSSI:-41 LQI:  9   57B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  6    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xD76B bcast=0
+[26] Zigbee    MAC:Color Bulb 2→0xADB9      NWK:Soil_Monitor_6→Hub         Data        RSSI:-64 LQI: 10   51B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xD76B bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:Soil_Monitor_6→Hub         Data        RSSI:-42 LQI: 10   51B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  8    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-94 LQI:  7   60B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-82 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-64 LQI: 10    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-82 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-65 LQI: 11    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-82 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  6    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x450F bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Color Bulb 2→ROUTERS     NWK Cmd     RSSI:-63 LQI: 11   63B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x04A7 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Repeater 1→ROUTERS     NWK Cmd     RSSI:-77 LQI: 10   63B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1A2E bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Color Bulb 1→ROUTERS     NWK Cmd     RSSI:-55 LQI: 10   54B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-61 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-41 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  6    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  6    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-58 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-58 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-58 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-41 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-40 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-40 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-57 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-62 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-68 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-76 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-77 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-40 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-78 LQI:  8   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-79 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-40 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-40 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-40 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-40 LQI:  9   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-40 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-65 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-57 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0xADB9 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0xADB9    →ROUTERS     NWK Cmd     RSSI:-43 LQI: 10   63B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-50 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-50 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-44 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-50 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-51 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-44 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-44 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-44 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-44 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-52 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-44 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-43 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-53 LQI: 11   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-53 LQI: 11   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-43 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-92 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 11    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-58 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  6    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  9    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-56 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-48 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-55 LQI: 11   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-48 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-48 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-48 LQI: 10   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-48 LQI: 10   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-50 LQI:  9   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-47 LQI:  9   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-47 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-48 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-88 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-70 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-55 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-47 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-47 LQI: 10   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-47 LQI:  9   46B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-47 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  8    3B
+[26] MAC Cmd   0xCEBA      →0xADB9        PAN:6A58  Data Request  RSSI:-33 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1F28 bcast=1
+[26] Zigbee    MAC:Repeater 3→BCAST       NWK:Repeater 3→ROUTERS     NWK Cmd     RSSI:-100 LQI:  6   63B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-94 LQI:  7   57B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x450F bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Color Bulb 2→ROUTERS     NWK Cmd     RSSI:-64 LQI: 10   63B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1A2E bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Color Bulb 1→ROUTERS     NWK Cmd     RSSI:-56 LQI: 10   54B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x04A7 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Repeater 1→ROUTERS     NWK Cmd     RSSI:-78 LQI: 10   63B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0xADB9 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0xADB9    →ROUTERS     NWK Cmd     RSSI:-41 LQI:  9   63B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[26] MAC Cmd   BCAST       →BCAST         PAN:FFFF  Beacon Request  RSSI:-81 LQI:  9    8B
+[26] Beacon    Color Bulb 1→BCAST         PAN:FFFF  Open        RSSI:-56 LQI: 11   26B
+[26] Beacon    Color Bulb 2→BCAST         PAN:FFFF  Open        RSSI:-65 LQI: 11   26B
+[26] Beacon    Repeater 1  →BCAST         PAN:FFFF  Open        RSSI:-80 LQI: 10   26B
+[26] Beacon    0xADB9      →BCAST         PAN:FFFF  Open        RSSI:-42 LQI:  9   26B
+[KC] data frame nwkDst=0xADB9 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    0x5DC7      →0xADB9        PAN:6A58  NWK Cmd     RSSI:-69 LQI: 11   45B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-42 LQI:  9   66B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-42 LQI:  9   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-61 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-42 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-61 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →SLEEPY      Data        RSSI:-61 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xADB9 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    0x5DC7      →0xADB9        PAN:6A58  NWK Cmd     RSSI:-61 LQI: 10   54B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-42 LQI:  9   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-57 LQI: 10   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-80 LQI: 10   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-66 LQI: 10   55B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-42 LQI:  9   54B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-94 LQI:  7   55B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-44 LQI:  9   54B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-42 LQI:  9   54B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-43 LQI:  9   54B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-61 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-61 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-43 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-92 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x5DC7 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x5DC7        PAN:6A58  NWK Cmd     RSSI:-42 LQI:  9   54B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-60 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:On-Off 1  →BCAST       NWK:0x5DC7    →SLEEPY      Data        RSSI:-102 LQI:  4   55B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-57 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-58 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-63 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI: 10    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-63 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-63 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-61 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-62 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI: 10    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  6    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-88 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-84 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-69 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-65 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-62 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-62 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-63 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-63 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-68 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-70 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-69 LQI: 11   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI:  9   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-43 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-43 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-100 LQI:  6    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-77 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-84 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-70 LQI: 11    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-84 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-77 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-80 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-64 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI:  9    3B
+[26] MAC Cmd   0xCEBA      →0xADB9        PAN:6A58  Data Request  RSSI:-33 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-82 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-69 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-97 LQI:  8   57B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-69 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-75 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-69 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-70 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-70 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x450F bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Color Bulb 2→ROUTERS     NWK Cmd     RSSI:-69 LQI: 11   63B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-73 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-65 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI:  8   10B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1A2E bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Color Bulb 1→ROUTERS     NWK Cmd     RSSI:-56 LQI:  9   54B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-99 LQI:  8   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-93 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-64 LQI: 10   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-56 LQI: 10   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-56 LQI: 10   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-58 LQI: 10   10B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-42 LQI: 10   49B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-93 LQI:  8    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-56 LQI: 10   49B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-64 LQI: 11   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-96 LQI:  9   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-41 LQI:  9   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-78 LQI:  9   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-95 LQI:  8   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-77 LQI:  9   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-42 LQI: 10   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-94 LQI:  8   49B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x04A7 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Repeater 1→ROUTERS     NWK Cmd     RSSI:-77 LQI: 10   63B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-60 LQI:  7   10B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-41 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  6    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-41 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →Hub         Data        RSSI:-59 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         NWK Cmd     RSSI:-42 LQI:  9   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-41 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x5DC7 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x5DC7    →Hub         Data        RSSI:-42 LQI: 10   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  7    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[26] MAC Cmd   0x5DC7      →0xADB9        PAN:6A58  Data Request  RSSI:-59 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0xADB9 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0xADB9    →ROUTERS     NWK Cmd     RSSI:-42 LQI: 10   63B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  8    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  6    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-84 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-64 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x5DC7 bcast=1
+[26] Zigbee    MAC:0x5DC7    →0xADB9      NWK:0x5DC7    →SLEEPY      NWK Cmd     RSSI:-61 LQI: 10   45B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-42 LQI: 10   66B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-42 LQI: 10   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  6    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xDD7A bcast=0
+[26] Zigbee    MAC:Weather Disp→Repeater 1  NWK:Weather Disp→Hub         Data        RSSI:-87 LQI: 10   51B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-79 LQI: 10    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  6    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xDD7A bcast=0
+[26] Zigbee    MAC:Repeater 1→Hub         NWK:Weather Disp→Hub         Data        RSSI:-79 LQI: 10   51B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  8    3B
+[KC] data frame nwkDst=0xDD7A nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →Repeater 1  NWK:Hub       →Weather Disp  Route:[Hub→Repeater 1→Weather Disp]  Data        RSSI:-98 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-79 LQI: 10    3B
+[KC] data frame nwkDst=0xDD7A nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →Repeater 1  NWK:Hub       →Weather Disp  Route:[Hub→Repeater 1→Weather Disp]  Data        RSSI:-96 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-79 LQI:  7    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-89 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-78 LQI:  9    3B
+[KC] data frame nwkDst=0xDD7A nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Repeater 1→Weather Disp  NWK:Hub       →Weather Disp  Data        RSSI:-79 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-89 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-88 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-78 LQI: 11    3B
+[KC] data frame nwkDst=0xDD7A nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Repeater 1→Weather Disp  NWK:Hub       →Weather Disp  Data        RSSI:-78 LQI: 10   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-87 LQI:  9    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-89 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-77 LQI:  9    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-78 LQI: 10    3B
+[26] MAC Cmd   0xCEBA      →0xADB9        PAN:6A58  Data Request  RSSI:-33 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI:  8   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-79 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-86 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-78 LQI:  9    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI:  8   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-79 LQI:  9    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI:  8   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-78 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-86 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-76 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-86 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-76 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x450F bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Color Bulb 2→ROUTERS     NWK Cmd     RSSI:-62 LQI: 11   63B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-76 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-97 LQI:  7   60B
+[26] MAC Cmd   BCAST       →BCAST         PAN:FFFF  Beacon Request  RSSI:-59 LQI: 11    8B
+[26] Beacon    Color Bulb 1→BCAST         PAN:FFFF  Open        RSSI:-57 LQI: 11   26B
+[26] Beacon    Color Bulb 2→BCAST         PAN:FFFF  Open        RSSI:-63 LQI: 11   26B
+[26] Beacon    0xADB9      →BCAST         PAN:FFFF  Open        RSSI:-40 LQI: 10   26B
+[26] Beacon    Repeater 1  →BCAST         PAN:FFFF  Open        RSSI:-76 LQI:  9   26B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-87 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-76 LQI: 10    3B
+[26] MAC Cmd   0xFFFE      →0xADB9        PAN:6A58  Assoc Request  RSSI:-60 LQI: 10   19B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-40 LQI: 10    3B
+[26] MAC Cmd   Weather Disp→Repeater 1    PAN:6A58  Data Request  RSSI:-86 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-77 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1A2E bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Color Bulb 1→ROUTERS     NWK Cmd     RSSI:-63 LQI: 11   54B
+[26] MAC Cmd   0xFFFE      →0xADB9        PAN:6A58  Data Request  RSSI:-64 LQI: 10   16B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0xFFFE      →0xFFFE        PAN:6A58  Assoc Response  RSSI:-46 LQI:  9   25B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-64 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-46 LQI: 10   66B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-46 LQI:  9   66B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-46 LQI: 10   66B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →Hub           PAN:6A58  Data        RSSI:-46 LQI:  9   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-100 LQI:  7    3B
+[KC] data frame nwkDst=0xADB9 nwkSrc=0x0000 bcast=0
+[26] Zigbee    Hub         →0xADB9        PAN:6A58  Data        RSSI:-100 LQI:  8  100B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0xADB9 nwkSrc=0x0000 bcast=0
+[26] Zigbee    Hub         →0xADB9        PAN:6A58  Data        RSSI:-96 LQI:  8  100B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-98 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x3E08        PAN:6A58  Data        RSSI:-47 LQI:  9   71B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-67 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x3E08        PAN:6A58  Data        RSSI:-46 LQI:  9   71B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-68 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-46 LQI:  9   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-66 LQI: 10    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →SLEEPY      Data        RSSI:-67 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0x3E08    →SLEEPY      Data        RSSI:-47 LQI:  9   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:0x3E08    →SLEEPY      Data        RSSI:-61 LQI: 10   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:Repeater 3→BCAST       NWK:0x3E08    →SLEEPY      Data        RSSI:-100 LQI:  6   55B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:0x3E08    →SLEEPY      Data        RSSI:-77 LQI: 10   55B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0xADB9 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    0x3E08      →0xADB9        PAN:6A58  NWK Cmd     RSSI:-67 LQI: 10   54B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-66 LQI: 11   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         NWK Cmd     RSSI:-46 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[KC] data frame nwkDst=0xFFFD nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:0x3E08    →SLEEPY      Data        RSSI:-96 LQI:  8   55B
+[26] MAC Cmd   0xF1E9      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xF1E9    →0xADB9      NWK:0xF1E9    →Hub         Data        RSSI:-53 LQI: 10   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0xF1E9    →Hub         NWK Cmd     RSSI:-46 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[26] MAC Cmd   0xF1E9      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xF1E9    →0xADB9      NWK:0xF1E9    →Hub         Data        RSSI:-54 LQI: 10   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0xF1E9    →Hub         NWK Cmd     RSSI:-46 LQI: 10   55B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-102 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI: 10   48B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  8   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  6    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-98 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0xF1E9    →Hub         Data        RSSI:-46 LQI: 10   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-97 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0xF1E9    →Hub         Data        RSSI:-46 LQI: 10   52B
+[KC] data frame nwkDst=0x0000 nwkSrc=0xF1E9 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0xF1E9    →Hub         Data        RSSI:-46 LQI:  9   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-66 LQI: 11   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  8   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-97 LQI:  7   64B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  7   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-46 LQI:  9   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-67 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 11    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0xADB9 bcast=0
+[26] Zigbee    0xADB9      →0x3E08        PAN:6A58  NWK Cmd     RSSI:-47 LQI:  9   54B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-68 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-68 LQI: 10   60B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  9   60B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  9   60B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-100 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-46 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-68 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-68 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-46 LQI:  9   60B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-68 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-68 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-46 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-68 LQI: 11    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   65B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-68 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  9   43B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  8    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-68 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-67 LQI: 11   56B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-46 LQI:  9   56B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-98 LQI:  8    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-67 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-67 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-97 LQI:  7   50B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 11   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-67 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   61B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-66 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 11   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 10   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 10   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-66 LQI: 11   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-65 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-65 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-65 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-64 LQI: 11   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI:  9   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-95 LQI:  7    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-97 LQI:  7   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  8   92B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-98 LQI:  8   50B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-55 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-42 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-55 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-55 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-42 LQI: 10   88B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-55 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-42 LQI:  9   46B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-55 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-54 LQI: 10   63B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-42 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-41 LQI:  9   63B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-93 LQI:  7    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-54 LQI: 10   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-41 LQI:  9    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-41 LQI:  9   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-96 LQI:  7    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-98 LQI:  7   51B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-44 LQI:  9   65B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-52 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-45 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-52 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-52 LQI: 10   37B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →ROUTERS     Data        RSSI:-52 LQI: 10   46B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x3E08 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:0x3E08    →ROUTERS     Data        RSSI:-99 LQI:  8   46B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-45 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  9   53B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   52B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-52 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   47B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   52B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-48 LQI:  9   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   47B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  7   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  7   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   48B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-52 LQI: 10   48B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   47B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x04A7 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Repeater 1→ROUTERS     NWK Cmd     RSSI:-80 LQI: 10   63B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  7   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   52B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 11    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI:  9   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   53B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-93 LQI:  8   52B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-99 LQI:  8    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  7   47B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   52B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-99 LQI:  8   47B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-97 LQI:  8   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   52B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   48B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-99 LQI:  8   53B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   68B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   64B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-97 LQI:  8   47B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-96 LQI:  8   54B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-94 LQI:  8    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  8    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   43B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI: 10   56B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   64B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI: 10   96B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-92 LQI:  8   60B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0xADB9 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:0xADB9    →ROUTERS     NWK Cmd     RSSI:-47 LQI:  8   63B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI: 10   61B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  9   58B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   68B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   49B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-99 LQI:  8   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   49B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   49B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI: 10   50B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   69B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   65B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-54 LQI: 10   45B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-93 LQI:  8    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] Beacon    BCAST       →BCAST         PAN:FFFF  Closed      RSSI:-53 LQI:  9   10B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-53 LQI: 10   96B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   57B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   57B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   43B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   53B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  8    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI:  9   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   49B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   61B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-66 LQI: 10   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-47 LQI: 10   49B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-62 LQI:  0   49B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-62 LQI: 10   49B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →On-Off 1    NWK:Hub       →0x3E08      Route:[Hub→0xADB9→On-Off 1→0x3E08]  Data        RSSI:-96 LQI:  7   54B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   48B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-53 LQI: 10   56B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-80 LQI: 10   49B
+[26] MAC Cmd   Soil_Monitor_6→Color Bulb 2  PAN:6A58  Data Request  RSSI:-82 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0x3E08    →0xADB9      NWK:0x3E08    →Hub         Data        RSSI:-53 LQI: 10   45B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         Data        RSSI:-47 LQI: 10   45B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-95 LQI:  8   60B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Repeater 1→BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-80 LQI: 10   49B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 11    3B
+[KC] data frame nwkDst=0x0000 nwkSrc=0x3E08 bcast=0
+[26] Zigbee    MAC:0xADB9    →Hub         NWK:0x3E08    →Hub         NWK Cmd     RSSI:-47 LQI: 10   55B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  8   52B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:Hub       →0xADB9      NWK:Hub       →0x3E08      Route:[Hub→0xADB9→0x3E08]  Data        RSSI:-94 LQI:  9   52B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:0xADB9    →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-47 LQI: 10   49B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[KC] data frame nwkDst=0x3E08 nwkSrc=0x0000 bcast=0
+[26] Zigbee    MAC:0xADB9    →0x3E08      NWK:Hub       →0x3E08      Data        RSSI:-47 LQI: 10   43B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-53 LQI: 11    3B
+[26] MAC Cmd   0xCEBA      →0xADB9        PAN:6A58  Data Request  RSSI:-33 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  8    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x450F bcast=1
+[26] Zigbee    MAC:Color Bulb 2→BCAST       NWK:Color Bulb 2→ROUTERS     NWK Cmd     RSSI:-67 LQI: 10   63B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-48 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x1A2E bcast=1
+[26] Zigbee    MAC:Color Bulb 1→BCAST       NWK:Color Bulb 1→ROUTERS     NWK Cmd     RSSI:-62 LQI: 10   54B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+
+-- Zigbee Keys --------------------------------------------------
+  Type        Seq  Label            Key
+  --------------------------------------------------------------
+  TCLK         0  Default TCLK     5A:69:67:42:65:65:41:6C:6C:69:61:6E:63:65:30:39
+  TCLK         1  Zero TCLK        00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+  TCLK         2  Seq TCLK         01:03:05:07:09:0B:0D:0F:00:02:04:06:08:0A:0C:0D
+  TCLK         3  eISY TCLK        01:A4:10:62:BF:9E:AD:7A:8F:E7:2A:BD:B6:F8:18:83
+----------------------------------------------------------------
+
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI: 11    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-52 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[KC] data frame nwkDst=0xFFFC nwkSrc=0x0000 bcast=1
+[26] Zigbee    MAC:Hub       →BCAST       NWK:Hub       →ROUTERS     NWK Cmd     RSSI:-96 LQI:  8   60B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+
+-- Host List -------------------------------------------------------------
+  Ch Addr   Label                Type        Frames  TX    RX   RSSI(l/n/x) LQI
+  -----------------------------------------------------------------------
+  26 0x0000 Hub                  Coordinator     468   201   267  -96/-100/   0   8 5
+   connected: 0x04A7 0xDD7A 0xADB9 0x3E08 0x6299
+  26 0x04A7 Repeater 1           Router           35    19    16  -80/ -98/   0  10 1
+   connected: 0xDD7A
+  26 0x1A2E Color Bulb 1         Router           19    19     0  -62/ -63/   0  10 0
+  26 0x1F28 Repeater 3           Router            3     3     0 -100/-100/   0   6 0
+  26 0x450F Color Bulb 2         Router           27    18     9  -67/ -88/   0  10 1
+   connected: 0xADB9
+  26 0x6299 On-Off 1             Router            2     1     1  -96/-102/   0   7 0
+  26 0xD76B Soil_Monitor_6       End Device       14    14     0  -82/ -88/   0  10 2
+   connected: 0x450F 0xADB9
+  26 0xDD7A Weather Disp         End Device       22    16     6  -86/ -98/   0   9 1
+   connected: 0x04A7
+  26 0xADB9                      Router          519   204   315  -53/-100/ -33  11 2
+   connected: 0x5DC7 0x3E08
+  26 0xCEBA                      End Device        5     5     0  -33/ -34/ -33  10 1
+   connected: 0xADB9
+  26 0x5DC7                      End Device      255   243    12  -61/-102/ -40  10 1
+   connected: 0xADB9
+  26 0x3E08                      End Device      310   154   156  -53/-100/ -41  11 1
+   connected: 0xADB9
+  26 0xF1E9                      End Device       11    11     0  -46/ -54/ -46   9 1
+   connected: 0xADB9
+------------------------------------------------------------------------
+
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-47 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-53 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-46 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-45 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-43 LQI: 10    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 10   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+[26] MAC Cmd   0x3E08      →0xADB9        PAN:6A58  Data Request  RSSI:-54 LQI: 11   10B
+[26] ACK       BCAST       →BCAST         PAN:FFFF              RSSI:-44 LQI:  9    3B
+bash-3.2$ exit
+exit
+
+Script done on Tue Jul 28 16:50:20 2026
