@@ -50,7 +50,16 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
                                info.route.nwkSrc, info.route.nwkDst);
 
 
+    // Resolve pending extended-addr join to short addr
+    // First MAC Cmd from new device (Data Request after Assoc Response)
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
+        JoinState *pending = _findJoin(0xFFFE);
+        if (pending && info.macSrc != 0xFFFE && !_findJoin(info.macSrc)) {
+            pending->shortAddr = info.macSrc;
+            Serial.printf("[KeyCapture] Resolved join: EUI64=%016llX → 0x%04X\n",
+                          pending->extAddr, info.macSrc);
+        }
+        // Check for Association Response
         if (rawLen > macPayloadOffset && rawFrame[macPayloadOffset] == 0x02) {
             _handleAssocResponse(info);
         }
@@ -58,15 +67,16 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
     }
 
     if (info.protocol == FrameProtocol::ZIGBEE &&
-        info.frameType == FC_FRAME_TYPE_DATA) {     //  && info.zbNwkSecurityEnabled) 
+        info.frameType == FC_FRAME_TYPE_DATA) {
         if (macPayloadOffset >= rawLen) return false;
-        // Pass NWK payload slice — not the full raw frame
         return _handleTransportKey(info,
                                    &rawFrame[macPayloadOffset],
                                    rawLen - macPayloadOffset);
     }
+
     return false;
 }
+
 
 void ZbKeyCapture::expireJoins(uint32_t timeout_ms) {
     uint32_t now = millis();
@@ -120,7 +130,7 @@ void ZbKeyCapture::_freeJoin(JoinState *j) {
 void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
     // Association Response is from coordinator (0x0000) to joining device
     // The joining device may be addressed by short OR extended address at this stage
-    if (info.macSrc != 0x0000) return;
+    // if (info.macSrc != 0x0000) return;
 
     JoinState *j;
     if (info.dstAddrMode == ADDR_MODE_EXTENDED) {
