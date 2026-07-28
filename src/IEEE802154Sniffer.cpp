@@ -24,6 +24,11 @@ extern "C" void esp_ieee802154_receive_done(uint8_t *frame,
 }
 extern "C" void esp_ieee802154_receive_failed(uint16_t error) {}
 extern "C" void esp_ieee802154_receive_sfd_done(void) {}
+extern "C" void esp_ieee802154_transmit_done(const uint8_t *frame,
+                                              const uint8_t *ack,
+                                              esp_ieee802154_frame_info_t *fi) {}
+extern "C" void esp_ieee802154_transmit_failed(const uint8_t *frame,
+                                                esp_ieee802154_tx_error_t err) {}
 
 // -- Static members ------------------------------------------------------------
 QueueHandle_t IEEE802154Sniffer::_rxQueue = nullptr;
@@ -164,6 +169,7 @@ void IEEE802154Sniffer::startPcap(Stream *out) {
     Serial.println("[Sniffer] PCap started");
 }
 
+
 void IEEE802154Sniffer::stopPcap() {
     _pcapOut = nullptr;
     Serial.println("[Sniffer] PCap stopped");
@@ -195,18 +201,17 @@ uint8_t IEEE802154Sniffer::update() {
             if (info.protocol == FrameProtocol::THREAD ||
                 info.protocol == FrameProtocol::MATTER)  _threadCount++;
 
+            // Key capture — check every frame, before display filters
+            if (onKeyCapture) onKeyCapture(info, raw.data, raw.len, info.macPayloadOffset);
+
             if (_updateHost(info) && no_duplicates) {
               continue;
             }
 
-            if (no_bcast && info.bcastType != BcastType::NOT_BCAST &&
-              info.macSrc == 0xFFFF)  {
+            // if (no_bcast && info.bcastType != BcastType::NOT_BCAST && info.macSrc == 0xFFFF) 
+            if (no_bcast && info.bcastType != BcastType::NOT_BCAST && is_bcast(info.macSrc)) {
               continue;
             }
-
-            // Key capture — before display, after host update
-            if (onKeyCapture)
-                onKeyCapture(info, raw.data, raw.len, info.macPayloadOffset);
 
             _printFrame(info);
 
@@ -302,7 +307,7 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
         default:     info.bcastType = BcastType::NOT_BCAST; break;
     }
 
-    // Record MAC payload start offset for ZbKeyCapture
+    // Record MAC payload start for ZbKeyCapture
     info.macPayloadOffset = off;
 
     // Payload decode
@@ -499,7 +504,6 @@ bool IEEE802154Sniffer::labelHost(uint16_t addr, char type, const char *label) {
         h->shortAddr    = addr;
         h->panId        = 0;
         h->extAddr      = 0;
-        h->nwkAddr      = 0;
         h->rssiMin = h->rssiMax = h->rssiLast = 0;
         h->lqiLast = h->channel = 0;
         h->firstSeen_ms = h->lastSeen_ms = 0;
@@ -584,8 +588,10 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
     bool ret_val = true;
 
     auto updateRecord = [&](uint16_t addr, bool isSrc) {
-        if (addr == 0xFFFF || addr == 0xFFFE || addr == 0xFFFB ||
-            addr == 0xFFFC || addr == 0xFFFD) return;  // skip all broadcast addrs
+        if (is_bcast(addr))
+          return;
+       //  if (addr == 0xFFFF || addr == 0xFFFE || addr == 0xFFFB ||
+       //      addr == 0xFFFC || addr == 0xFFFD) return;  // skip all broadcast addrs
 
         HostRecord *h = findHost(addr);
         if (!h) {
@@ -594,7 +600,6 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
             h->shortAddr    = addr;
             h->panId        = info.panId;
             h->extAddr      = 0;
-            h->nwkAddr      = 0;
             h->rssiMin      = info.rssi;
             h->rssiMax      = info.rssi;
             h->rssiLast     = info.rssi;
@@ -636,9 +641,19 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
         if (isSrc) h->txCount++;
         else       h->rxCount++;
 
-        // if (isSrc) h->connected_hosts->add(info.macDst);
+        // if (isSrc) h->connected_hosts.add(info.macDst);
         // if (isSrc) h->connected_hosts.add(new uint16_t(info.macDst));
-        if (isSrc) h->connected_hosts.add(info.macDst);
+        if (isSrc && !is_bcast(info.macDst) && info.macDst)  {
+          bool jj = true;
+          for (int j = 0; j < h->connected_hosts.size(); j++) {
+            if (h->connected_hosts.get(j) == info.macDst) {
+              jj = false;
+              break;
+            }
+          }
+          if (jj) 
+            h->connected_hosts.add(info.macDst);
+        }
 
         // Retry / security counts
         if (info.macIsRetry)          h->retryCount++;
@@ -716,7 +731,7 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
 
 void IEEE802154Sniffer::printHosts() {
     Serial.println("\n-- Host List -------------------------------------------------------------");
-    Serial.println("  Addr   Label                Type        Frames  TX    RX   RSSI(l/n/x) LQI");
+    Serial.println("  Ch Addr   Label                Type        Frames  TX    RX   RSSI(l/n/x) LQI");
     Serial.println("  -----------------------------------------------------------------------");
     for (int i = 0; i < hosts.size(); i++) {
         HostRecord *h = hosts.get(i);
@@ -729,14 +744,22 @@ void IEEE802154Sniffer::printHosts() {
         const char *proto = "802.15.4";
         if (h->protocol == FrameProtocol::ZIGBEE) proto = "Zigbee";
         else if (h->protocol == FrameProtocol::THREAD) proto = "Thread";
-        Serial.printf("  0x%04X %-20s %-12s %6lu %5lu %5lu %4d/%4d/%4d %3u\n",
+        Serial.printf("  %u 0x%04X %-20s %-12s %6lu %5lu %5lu %4d/%4d/%4d %3u %d",
+            h->channel,
             h->shortAddr,
             h->label[0] ? h->label : "",
             dtype,
             h->frameCount, h->txCount, h->rxCount,
-            h->rssiLast, h->rssiMin, h->rssiMax, h->lqiLast);
+            h->rssiLast, h->rssiMin, h->rssiMax, h->lqiLast,
+            h->connected_hosts.size());
+        if (h->connected_hosts.size() > 0) {
+            Serial.print("\n   connected:");
+              for (int j = 0; j < h->connected_hosts.size(); j++) {  //  check uniq
+                  Serial.printf(" 0x%04X", h->connected_hosts.get(j));
+              }
+        }
+        Serial.println();
     }
-    // print  connected_host list here
     Serial.println("------------------------------------------------------------------------\n");
 }
 
@@ -753,7 +776,7 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     if (!info.hasRoute || (info.route.nwkSrc == info.macSrc &&
                             info.route.nwkDst == info.macDst &&
                             info.route.hopCount == 0)) {
-        Serial.printf("[%02u] %-8s  %-15s→%-15s  PAN:%04X  %-16s  RSSI:%3d LQI:%3u  %3uB\n",
+        Serial.printf("[%02u] %-8s  %-12s→%-12s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.channel, info.protocolName,
             srcBuf, dstBuf, info.panId,
             info.functionName ? info.functionName : "",
@@ -762,7 +785,7 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
         addrLabel(info.route.nwkSrc, nwkSrcBuf, sizeof(nwkSrcBuf));
         addrLabel(info.route.nwkDst, nwkDstBuf, sizeof(nwkDstBuf));
 
-        Serial.printf("[%02u] %-8s  MAC:%-16s→%-16s  NWK:%-20s→%-20s",
+        Serial.printf("[%02u] %-8s  MAC:%-10s→%-10s  NWK:%-10s→%-10s",
             info.channel, info.protocolName,
             srcBuf, dstBuf, nwkSrcBuf, nwkDstBuf);
 
@@ -777,7 +800,7 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
             Serial.printf("→%s]", nwkDstBuf);
         }
 
-        Serial.printf("  %-16s  RSSI:%3d LQI:%3u  %3uB\n",
+        Serial.printf("  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.functionName ? info.functionName : "",
             info.rssi, info.lqi, info.len);
     }
@@ -932,4 +955,44 @@ bool IEEE802154Sniffer::_tryExtractNetworkKey(const FrameInfo &info,
     }
 
     return false;  // decryption not yet implemented - returns true when key extracted
+}
+
+// -- Beacon Request TX ---------------------------------------------------------
+// Sends a MAC beacon request (Cmd 0x07) broadcast on the current channel.
+// Used for active scanning — solicits beacon responses from coordinators/routers.
+// Requires stop()/start() around TX since we're in RX mode.
+bool IEEE802154Sniffer::sendBeaconRequest() {
+    // MAC Beacon Request frame (9 bytes):
+    // FC(2) | Seq(1) | DST_PAN(2) | DST(2) | Cmd(1) = 0x07
+    static uint8_t seq = 0;
+
+    uint8_t frame[9];
+    // Frame Control: type=MAC Cmd(3), no security, dst=short, src=none, pan compress
+    frame[0] = 0x03;  // FC low: type=3 (MAC cmd), no security
+    frame[1] = 0x08;  // FC high: dst addr mode=short(2<<2), src addr mode=none(0<<6)
+    frame[2] = seq++; // sequence number
+    frame[3] = 0xFF;  // dst PAN low (broadcast)
+    frame[4] = 0xFF;  // dst PAN high
+    frame[5] = 0xFF;  // dst addr low (broadcast)
+    frame[6] = 0xFF;  // dst addr high
+    frame[7] = 0x07;  // MAC Cmd: Beacon Request
+
+    // IDF transmit — prepend length byte (includes 2-byte FCS appended by radio)
+    uint8_t txBuf[10];
+    txBuf[0] = sizeof(frame) + 2;  // length = frame + FCS
+    memcpy(&txBuf[1], frame, sizeof(frame));
+
+    // Must stop RX before TX
+    esp_ieee802154_sleep();
+    esp_err_t err = esp_ieee802154_transmit(txBuf, false);
+    delay(5);
+    esp_ieee802154_receive();  // back to RX
+    _running = true;
+
+    if (err != ESP_OK) {
+        log_w("sendBeaconRequest: tx failed %d", err);
+        return false;
+    }
+    log_d("sendBeaconRequest: sent on ch %u", _channel);
+    return true;
 }

@@ -155,8 +155,14 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         }
     }
     // Log regardless — we attempt decryption even without confirmed join state
-    Serial.printf("[KeyCapture] Coord→0x%04X encrypted — attempting decrypt\n",
-                  info.route.nwkDst);
+    Serial.printf("[KeyCapture] Coord→0x%04X encrypted — attempting decrypt, nwkLen=%u\n",
+                  info.route.nwkDst, nwkLen);
+
+    // Hex dump first 32 bytes for debugging
+    Serial.print("[KeyCapture] NWK: ");
+    for (uint8_t i = 0; i < min((uint8_t)32, nwkLen); i++)
+        Serial.printf("%02X ", nwkPayload[i]);
+    Serial.println();
 
     // Find APS payload offset (after NWK header + AUX security header)
     uint8_t apsOffset = 0;

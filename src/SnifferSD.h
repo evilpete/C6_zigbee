@@ -1,13 +1,13 @@
 /*
- * SnifferSD.h - SD card support for IEEE802154 Sniffer
+ * SnifferSD.h — SD card support for IEEE802154 Sniffer
  * Waveshare ESP32-C6-LCD-1.47 pin assignments:
  *   MISO = GPIO5, MOSI = GPIO6, SCLK = GPIO7, CS = GPIO4
- *   (MOSI/SCLK shared with LCD - LCD CS kept high since display unused)
+ *   (MOSI/SCLK shared with LCD — LCD CS kept high since display unused)
  *
  * Saves:
- *   /capture.pcap   - raw 802.15.4 frames (Wireshark LINKTYPE_IEEE802_15_4)
- *   /hosts.json     - host list with labels, RSSI, frame counts, device type
- *   /keys.json      - Zigbee keys (TCLK + any captured network keys)
+ *   /capture.pcap   — raw 802.15.4 frames (Wireshark LINKTYPE_IEEE802_15_4)
+ *   /hosts.json     — host list with labels, RSSI, frame counts, device type
+ *   /keys.json      — Zigbee keys (TCLK + any captured network keys)
  */
 
 #pragma once
@@ -16,7 +16,7 @@
 #include <SD.h>
 #include "IEEE802154Sniffer.h"
 
-// -- Pin definitions -----------------------------------------------------------
+// ── Pin definitions ───────────────────────────────────────────────────────────
 #define SD_MISO_PIN     5
 #define SD_MOSI_PIN     6
 #define SD_SCLK_PIN     7
@@ -26,23 +26,23 @@ class SnifferSD {
 public:
     SnifferSD() : _mounted(false), _pcapFile(), _pcapOpen(false) {}
 
-    // Mount SD card - call once in setup() after SPI.begin()
+    // Mount SD card — call once in setup() after SPI.begin()
     bool begin() {
         SPI.begin(SD_SCLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
         if (!SD.begin(SD_CS_PIN)) {
-            Serial.println("[SD] Mount failed - check card");
+            Serial.println("[SD] Mount failed — check card");
             return false;
         }
         _mounted = true;
         uint64_t mb = SD.cardSize() / (1024 * 1024);
-        Serial.printf("[SD] Mounted - %lluMB  free: %lluMB\n",
+        Serial.printf("[SD] Mounted — %lluMB  free: %lluMB\n",
                       mb, (SD.totalBytes() - SD.usedBytes()) / (1024 * 1024));
         return true;
     }
 
     bool isMounted() const { return _mounted; }
 
-    // -- PCap ------------------------------------------------------------------
+    // ── PCap ──────────────────────────────────────────────────────────────────
     // Opens /capture.pcap and hooks it into the sniffer's pcap stream
     // Appends if file exists, creates new if not
     bool startPcap(IEEE802154Sniffer &sniffer, const char *path = "/capture.pcap") {
@@ -70,7 +70,7 @@ public:
 
     bool isPcapOpen() const { return _pcapOpen; }
 
-    // -- hosts.json ------------------------------------------------------------
+    // ── hosts.json ────────────────────────────────────────────────────────────
     bool saveHosts(IEEE802154Sniffer &sniffer,
                    const char *path = "/hosts.json") {
         if (!_mounted) return false;
@@ -132,7 +132,7 @@ public:
         return true;
     }
 
-    // -- keys.json -------------------------------------------------------------
+    // ── keys.json ─────────────────────────────────────────────────────────────
     bool saveKeys(IEEE802154Sniffer &sniffer,
                   const char *path = "/keys.json") {
         if (!_mounted) return false;
@@ -163,7 +163,7 @@ public:
         return true;
     }
 
-    // -- Load labels from SD /labels.csv ---------------------------------------
+    // ── Load labels from SD /labels.csv ───────────────────────────────────────
     bool loadLabels(IEEE802154Sniffer &sniffer,
                     const char *path = "/labels.csv") {
         if (!_mounted) return false;
@@ -179,7 +179,7 @@ public:
         return true;
     }
 
-    // -- List SD files ---------------------------------------------------------
+    // ── List SD files ─────────────────────────────────────────────────────────
     void listFiles(const char *dir = "/") {
         File root = SD.open(dir);
         if (!root) return;

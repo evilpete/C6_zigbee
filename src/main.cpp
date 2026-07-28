@@ -23,6 +23,7 @@
 #include "IEEE802154Sniffer.h"
 #include "SnifferSD.h"
 #include "ZbKeyCapture.h"
+#include "ZbKeyCapture.h"
 
 /*
 // -- WS2812B ------------------------------------------------------------------
@@ -116,8 +117,9 @@ IEEE802154Sniffer sniffer;
 SnifferSD         sd;
 ZbKeyCapture      keyCapture(sniffer);
 static bool hopping = false;
+static bool scanning = false;
+static uint8_t scanChannel = 0;
 static uint32_t _channelScan = 0;
-
 
 void print_active_ch() {
   Serial.print("Active Channels:");
@@ -131,6 +133,8 @@ void print_active_ch() {
   }
 }
 
+
+/*
 void startScanChannels() {
   sniffer.stopChannelHop();
   hopping = false;
@@ -142,9 +146,10 @@ void startScanChannels() {
   sniffer.active_channels[0] = 1;
   // SEND Request beacons
 }
+*/
 
+/*
 void scanChannels() {
-
     if (!_channelScan) { // if Zero we are not scanning
       return;
     }
@@ -166,10 +171,9 @@ void scanChannels() {
             // __attribute__((suppress))
             // sniffer.active_channels[h->channel -10]++; [[clang::suppress]];
             sniffer.active_channels.at(h->channel -10)++;
-
         }
-
         print_active_ch();
+
         return;
     }
 
@@ -181,6 +185,48 @@ void scanChannels() {
     // restart timer
     _channelScan = millis() + 1000;
 }
+*/
+
+
+// -- Active channel scan -------------------------------------------------------
+// Sends a beacon request on each channel to solicit beacon responses
+// Call from loop() or a timer
+void startScanChannels() {
+    Serial.println("[Scan] Starting active channel scan 11-26");
+    scanning = true;
+    scanChannel = SNIFFER_MIN_CHANNEL;
+    sniffer.setChannel(scanChannel);
+    delay(10);
+    // SEND Request beacons
+    sniffer.sendBeaconRequest();
+}
+
+
+// the active_channels array contains a lost of channels we found traffic
+void updateScan() {
+    static uint32_t lastScan = 0;
+    if (!scanning) return;
+    if (millis() - lastScan < 300) return;  // dwell 300ms per channel
+    lastScan = millis();
+    sniffer.sendBeaconRequest();             // request on current channel
+    if (scanChannel < SNIFFER_MAX_CHANNEL) {
+        scanChannel++;
+        sniffer.setChannel(scanChannel);
+        Serial.printf("\r[Scan] CH:%02u  ", scanChannel);
+    } else {
+        scanning = false;
+        Serial.println("\n[Scan] Complete");
+
+        //  [[clang::suppress("type", "bounds")]];  [[clang::suppress]];
+        for (int i = 0; i < sniffer.hosts.size(); i++) { 
+          HostRecord *h = sniffer.hosts.get(i);
+          if (h->channel)
+            sniffer.active_channels.at(h->channel -10)++;
+        }
+        print_active_ch();
+    }
+}
+
 
 void show_header() {
     Serial.println();
@@ -298,6 +344,8 @@ void handleSerial() {
         }
     } else if (cmd == "k") {
         sniffer.printKeys();
+    } else if (cmd == "S") {
+        startScanChannels();
     } else {
         Serial.println("Commands: c<ch>  h(op)  k(eys)  l(ist)  p(cap)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
     }
@@ -325,6 +373,16 @@ void setup() {
     Serial.println(  "╚══════════════════════════════════╝");
 
     sniffer.onFrame = onSnifferFrame;
+
+    // Wire key capture callback
+    sniffer.onKeyCapture = [](const FrameInfo &info,
+                               const uint8_t *rawFrame, uint8_t rawLen,
+                               uint8_t macPayloadOffset) {
+        if (keyCapture.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
+            ledFlash(COL_WHITE, 500);
+            Serial.println("[!] *** Network key captured! type \'k\' to view ***");
+        }
+    };
 
     // Wire key capture — fires on every frame, ZbKeyCapture decides what's relevant
     sniffer.onKeyCapture = [](const FrameInfo &info,
