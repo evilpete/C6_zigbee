@@ -104,7 +104,8 @@ void ZbKeyCapture::_freeJoin(JoinState *j) {
 // -- Association Response -----------------------------------------------------
 
 void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
-    if (info.macSrc != 0x0000) return;
+    // Coordinator may relay via router - accept if either MAC or NWK src is coordinator
+    if (info.macSrc != 0x0000 && info.route.nwkSrc != 0x0000) return;
 
     uint16_t newDevAddr = info.macDst;
 
@@ -155,6 +156,8 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     uint8_t apsFrameType = apsFc & 0x03;
     bool    apsSecured   = (apsFc >> 5) & 0x01;
 
+    Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
+                  nwkLen, info.route.nwkSrc, info.route.nwkDst);
     Serial.printf("[KC] NWK: ");
     for (int i = 0; i < nwkLen && i < 32; i++) Serial.printf("%02X ", nwkPayload[i]);
     Serial.println();
