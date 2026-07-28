@@ -140,6 +140,15 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     // Must be unicast to a recently-joined device
     if (is_bcast(info.route.nwkDst)) return false;
     JoinState *j = _findJoin(info.route.nwkDst);
+
+    // If nwkDst didn't match, coordinator may be sending via parent router.
+    // Try matching any active join when frame originates from coordinator.
+    if (!j && info.route.nwkSrc == 0x0000) {
+        for (int i = 0; i < MAX_PENDING_JOINS; i++) {
+            if (_joins[i].active) { j = &_joins[i]; break; }
+        }
+    }
+
     if (!j) return false;
 
     Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
