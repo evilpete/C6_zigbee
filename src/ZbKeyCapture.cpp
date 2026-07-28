@@ -146,9 +146,16 @@ void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
 bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
                                         const uint8_t *nwkPayload,
                                         uint8_t nwkLen) {
+     // Must be unicast
+     if (is_bcast(info.route.nwkDst)) return false;
+             
+    // Must be going to a recently-joined device
+    JoinState *j = _findJoin(info.route.nwkDst);
+    if (!j) return false;  // not a device we're tracking
+
     // Only from coordinator to a recently-joined device
-    if (info.route.nwkSrc != 0x0000) return false;
-    if (is_bcast(info.route.nwkDst))  return false;
+    // if (info.route.nwkSrc != 0x0000) return false;
+    // if (is_bcast(info.route.nwkDst))  return false;
 
  // Hex dump — remove after debugging
     Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
@@ -159,18 +166,19 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     Serial.println();
 
     // Check if destination recently joined — but try anyway even if missed
-    JoinState *j = _findJoin(info.route.nwkDst);
-    if (!j) {
-        // Try EUI64-based match for extended-addressed joins
-        for (int i = 0; i < MAX_PENDING_JOINS; i++) {
-            if (_joins[i].active && _joins[i].shortAddr == 0xFFFE) {
-                // Placeholder join from extended-addr association — accept
-                j = &_joins[i];
-                j->shortAddr = info.route.nwkDst;  // now we know the short addr
-                break;
-            }
-        }
-    }
+    // JoinState *j = _findJoin(info.route.nwkDst);
+    // if (!j) {
+    //     // Try EUI64-based match for extended-addressed joins
+    //     for (int i = 0; i < MAX_PENDING_JOINS; i++) {
+    //         if (_joins[i].active && _joins[i].shortAddr == 0xFFFE) {
+    //             // Placeholder join from extended-addr association — accept
+    //             j = &_joins[i];
+    //             j->shortAddr = info.route.nwkDst;  // now we know the short addr
+    //             break;
+    //        }
+    //     }
+    // }
+
     // Log regardless — we attempt decryption even without confirmed join state
     Serial.printf("[KeyCapture] Coord→0x%04X encrypted — attempting decrypt, nwkLen=%u\n",
                   info.route.nwkDst, nwkLen);
