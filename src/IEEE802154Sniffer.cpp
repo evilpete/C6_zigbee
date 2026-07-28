@@ -98,6 +98,10 @@ bool IEEE802154Sniffer::init(uint8_t channel) {
 
     // Load default Zigbee Trust Center Link Key "ZigBeeAlliance09"
     addKey(ZbKeyType::TRUST_CENTER_LINK, ZIGBEE_DEFAULT_TCLK, 0, "Default TCLK");
+    // all-zeros key
+    addKey(ZbKeyType::TRUST_CENTER_LINK, ZIGBEE_ZERO_KEY, 1, "Zero TCLK");
+    // Found on Google:  https://github.com/Koenkk/zigbee2mqtt/discussions/13437
+    addKey(ZbKeyType::TRUST_CENTER_LINK, ZIGBEE_SEQ_KEY, 2, "Seq TCLK");
 
     Serial.printf("[Sniffer] Initialised ch %u\n", _channel);
     return true;
