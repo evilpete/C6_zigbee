@@ -34,6 +34,7 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
                                  const uint8_t *rawPayload, uint8_t rawLen,
                                  uint8_t macPayloadOffset) {
 
+    log_d("ZbKeyCapture::processFrame");
     // Capture coordinator EUI64 whenever we see it
     if (info.srcExtended != 0 &&
         (info.macSrc == 0x0000 || info.route.nwkSrc == 0x0000)) {
@@ -45,6 +46,14 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
             _handleAssocResponse(info);
         return false;
     }
+
+if (info.protocol == FrameProtocol::ZIGBEE &&
+    info.frameType == FC_FRAME_TYPE_DATA) {
+    Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
+                  info.route.nwkDst, info.route.nwkSrc, is_bcast(info.route.nwkDst));
+    if (!is_bcast(info.route.nwkDst))
+        return _handleTransportKey(info, rawPayload, rawLen);
+}
 
     // Zigbee data frames - look for Transport Key regardless of NWK security bit
     if (info.protocol == FrameProtocol::ZIGBEE &&
