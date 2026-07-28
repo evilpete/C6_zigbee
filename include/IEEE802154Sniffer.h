@@ -4,6 +4,7 @@
 
 #pragma once
 
+#define VERSION "0.5"
 #include "esp_ieee802154_types.h"
 #include <Arduino.h>
 #include <LinkedList.h>

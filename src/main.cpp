@@ -381,10 +381,10 @@ void setup() {
     // led.setPixelColor(0, COL_RED);
     // led.show();
 
-    Serial.println("\n╔══════════════════════════════════╗");
-    Serial.println(  "║  IEEE 802.15.4 Sniffer v0.1      ║");
-    Serial.println(  "║  ESP32-C6  Zigbee + Thread/Matter ║");
-    Serial.println(  "╚══════════════════════════════════╝");
+    Serial.println("\n+===================================+");
+    Serial.printf(   "|  IEEE 802.15.4 Sniffer v%-4s      |\n", VERSION);
+    Serial.println(  "|  ESP32-C6  Zigbee + Thread/Matter |");
+    Serial.println(  "+===================================+");
 
     sniffer.onFrame = onSnifferFrame;
 
