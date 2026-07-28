@@ -42,6 +42,9 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
     }
 
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
+        Serial.printf("[KC] MAC CMD rawLen=%u cmd=0x%02X macSrc=0x%04X\n",
+                rawLen, rawLen > 0 ? rawPayload[0] : 0xFF, info.macSrc);
+
         if (rawLen >= 1 && rawPayload[0] == 0x02)
             _handleAssocResponse(info);
         return false;
