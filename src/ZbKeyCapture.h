@@ -38,8 +38,8 @@ public:
 
     // Call from update() after frame is decoded — checks for join frames
     // Returns true if a new network key was captured
-    bool processFrame(const FrameInfo &info, const uint8_t *rawPayload,
-                      uint8_t rawLen);
+    bool processFrame(const FrameInfo &info, const uint8_t *rawFrame,
+                      uint8_t rawLen, uint8_t macPayloadOffset);
 
     // Callback — fires when a network key is successfully extracted
     void (*onKeyCapture)(const ZbKey &key) = nullptr;

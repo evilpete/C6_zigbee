@@ -328,8 +328,9 @@ void setup() {
 
     // Wire key capture — fires on every frame, ZbKeyCapture decides what's relevant
     sniffer.onKeyCapture = [](const FrameInfo &info,
-                               const uint8_t *payload, uint8_t len) {
-        if (keyCapture.processFrame(info, payload, len)) {
+                               const uint8_t *rawFrame, uint8_t rawLen,
+                               uint8_t macPayloadOffset) {
+        if (keyCapture.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
             // New network key captured — flash white
             ledFlash(COL_WHITE, 500);
             Serial.println("[!] New network key captured — type 'k' to view");

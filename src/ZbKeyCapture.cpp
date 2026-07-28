@@ -36,22 +36,24 @@ ZbKeyCapture::ZbKeyCapture(IEEE802154Sniffer &sniffer)
 // -- Public --------------------------------------------------------------------
 
 bool ZbKeyCapture::processFrame(const FrameInfo &info,
-                                 const uint8_t *rawPayload, uint8_t rawLen) {
-    // We only care about MAC command frames (join) and Zigbee data frames
+                                 const uint8_t *rawFrame, uint8_t rawLen,
+                                 uint8_t macPayloadOffset) {
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
-        // MAC Cmd 0x02 = Association Response - coordinator accepted a new device
-        // rawPayload[0] = cmd ID
-        if (rawLen >= 1 && rawPayload[0] == 0x02) {
+        // Check MAC payload byte for Association Response (0x02)
+        if (rawLen > macPayloadOffset && rawFrame[macPayloadOffset] == 0x02) {
             _handleAssocResponse(info);
         }
         return false;
     }
 
-    // For Zigbee data frames - look for Transport Key
+    // For Zigbee data frames - NWK payload starts at macPayloadOffset
     if (info.protocol == FrameProtocol::ZIGBEE &&
         info.frameType == FC_FRAME_TYPE_DATA &&
         info.zbNwkSecurityEnabled) {
-        return _handleTransportKey(info, rawPayload, rawLen);
+        if (macPayloadOffset >= rawLen) return false;
+        return _handleTransportKey(info,
+                                   &rawFrame[macPayloadOffset],
+                                   rawLen - macPayloadOffset);
     }
 
     return false;
@@ -107,16 +109,27 @@ void ZbKeyCapture::_freeJoin(JoinState *j) {
 // -- Association Response handler ----------------------------------------------
 
 void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
-    // Dst = new device (may be extended addr at this stage)
-    // Src = coordinator (0x0000)
+    // Association Response is from coordinator (0x0000) to joining device
+    // The joining device may be addressed by short OR extended address at this stage
     if (info.macSrc != 0x0000) return;
 
-    uint16_t newDevAddr = info.macDst;
-    JoinState *j = _allocJoin(newDevAddr);
-    j->extAddr = info.dstExtended;
-
-    Serial.printf("[KeyCapture] Join detected: 0x%04X (EUI64: %016llX)\n",
-                  newDevAddr, info.dstExtended);
+    JoinState *j;
+    if (info.dstAddrMode == ADDR_MODE_EXTENDED) {
+        // Device addressed by EUI64 — store EUI64, short addr unknown yet
+        // Use lower 16 bits of EUI64 as temporary key (will match on NWK dst later)
+        uint16_t tempKey = (uint16_t)(info.dstExtended & 0xFFFF);
+        j = _allocJoin(tempKey);
+        j->extAddr = info.dstExtended;
+        j->shortAddr = 0xFFFE;  // mark as unknown
+        Serial.printf("[KeyCapture] Join (ext addr): EUI64=%016llX\n",
+                      info.dstExtended);
+    } else {
+        // Device addressed by short address
+        j = _allocJoin(info.macDst);
+        j->extAddr = info.dstExtended;
+        Serial.printf("[KeyCapture] Join detected: 0x%04X (EUI64: %016llX)\n",
+                      info.macDst, info.dstExtended);
+    }
 }
 
 // -- Transport Key handler -----------------------------------------------------
@@ -128,13 +141,22 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     if (info.route.nwkSrc != 0x0000) return false;
     if (is_bcast(info.route.nwkDst))  return false;
 
-    // Check if destination recently joined
+    // Check if destination recently joined — but try anyway even if missed
     JoinState *j = _findJoin(info.route.nwkDst);
     if (!j) {
-        // May have missed the association - try anyway if from coordinator
-        Serial.printf("[KeyCapture] Encrypted coordinator→0x%04X - possible Transport Key\n",
-                      info.route.nwkDst);
+        // Try EUI64-based match for extended-addressed joins
+        for (int i = 0; i < MAX_PENDING_JOINS; i++) {
+            if (_joins[i].active && _joins[i].shortAddr == 0xFFFE) {
+                // Placeholder join from extended-addr association — accept
+                j = &_joins[i];
+                j->shortAddr = info.route.nwkDst;  // now we know the short addr
+                break;
+            }
+        }
     }
+    // Log regardless — we attempt decryption even without confirmed join state
+    Serial.printf("[KeyCapture] Coord→0x%04X encrypted — attempting decrypt\n",
+                  info.route.nwkDst);
 
     // Find APS payload offset (after NWK header + AUX security header)
     uint8_t apsOffset = 0;
@@ -142,6 +164,8 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         Serial.println("[KeyCapture] Could not parse NWK header");
         return false;
     }
+
+    Serial.printf("[KeyCapture] nwkLen=%u apsOffset=%u\n", nwkLen, apsOffset);
 
     // Try each TCLK we have
     for (int ki = 0; ki < _sniffer.keys.size(); ki++) {
