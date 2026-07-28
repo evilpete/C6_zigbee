@@ -119,17 +119,20 @@ ZbKeyCapture      keyCapture(sniffer);
 static bool hopping = false;
 static bool scanning = false;
 static uint8_t scanChannel = 0;
+static uint8_t scanSaveChannel = 0;
 static uint32_t _channelScan = 0;
+static uint32_t lastScan = 0;
 
 void print_active_ch() {
+  if (_channelScan)
+    Serial.println("Channel Scan Still Active");
   Serial.print("Active Channels:");
   for (uint8_t i = SNIFFER_MIN_CHANNEL; i <= SNIFFER_MAX_CHANNEL; i++) {
     if (sniffer.active_channels[i - 10]) {
       Serial.print(" ");
       Serial.print(i);
     }
-    if (_channelScan)
-      Serial.println("Channel Scan Active");
+    Serial.println();
   }
 }
 
@@ -194,35 +197,47 @@ void scanChannels() {
 void startScanChannels() {
     Serial.println("[Scan] Starting active channel scan 11-26");
     scanning = true;
+    scanSaveChannel = sniffer.getChannel();
     scanChannel = SNIFFER_MIN_CHANNEL;
     sniffer.setChannel(scanChannel);
     delay(10);
     // SEND Request beacons
     sniffer.sendBeaconRequest();
+    lastScan = millis();
+    Serial.printf("[Scan] CH:%02u  \n", SNIFFER_MIN_CHANNEL);  Serial.flush();
+    sniffer.active_channels[0] = 1;
 }
 
 
 // the active_channels array contains a lost of channels we found traffic
 void updateScan() {
-    static uint32_t lastScan = 0;
     if (!scanning) return;
-    if (millis() - lastScan < 300) return;  // dwell 300ms per channel
-    lastScan = millis();
+    // Serial.printf("millis() - lastScan\n", (millis() - lastScan));
     sniffer.sendBeaconRequest();             // request on current channel
+    if (millis() - lastScan < 3000) return;  // dwell 3000 per channel
+    lastScan = millis();
     if (scanChannel < SNIFFER_MAX_CHANNEL) {
         scanChannel++;
         sniffer.setChannel(scanChannel);
-        Serial.printf("\r[Scan] CH:%02u  ", scanChannel);
+        delay(10);
+        Serial.printf("[Scan] CH:%02u  \n", scanChannel);  Serial.flush();
+        sniffer.sendBeaconRequest();             // request on current channel
     } else {
         scanning = false;
-        Serial.println("\n[Scan] Complete");
+        
+        // Restore Channel
+        if (scanSaveChannel)
+          sniffer.setChannel(scanSaveChannel);
 
         //  [[clang::suppress("type", "bounds")]];  [[clang::suppress]];
         for (int i = 0; i < sniffer.hosts.size(); i++) { 
           HostRecord *h = sniffer.hosts.get(i);
-          if (h->channel)
+          if (h->channel) {
             sniffer.active_channels.at(h->channel -10)++;
+            Serial.printf("GOT active_channels chan=%d  %d %d\n", h->channel, (h->channel -10), sniffer.active_channels.at(h->channel -10));  Serial.flush(); delay(10);
+            }
         }
+        Serial.println("active_channels Done\n");  Serial.flush();
         print_active_ch();
     }
 }
@@ -291,13 +306,12 @@ void handleSerial() {
         Serial.printf("  Zigbee   : %lu\n", sniffer.getZigbeeCount());
         Serial.printf("  Thread   : %lu\n", sniffer.getThreadCount());
         Serial.printf("  Dropped  : %lu\n", sniffer.getDroppedCount());
+        Serial.printf("  hopping  : %s\n", hopping ? "True" : "False");
+        Serial.printf("  scanning : %s\n", scanning ? "True" : "False");
         Serial.println("-----------------------------------");
         if (sniffer.active_channels[0]) {
           print_active_ch();
         }
-    } else if (cmd == "S") {
-        Serial.println("Start Channel scan");
-        startScanChannels();
     } else if (cmd == "r") {
         Serial.println("Stats reset");
     } else if (cmd == "l") {
@@ -426,5 +440,5 @@ void loop() {
     sniffer.update();
     handleSerial();
     keyCapture.expireJoins();
-    // ledUpdate();
+    updateScan();
 }
