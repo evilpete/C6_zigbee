@@ -38,6 +38,18 @@ ZbKeyCapture::ZbKeyCapture(IEEE802154Sniffer &sniffer)
 bool ZbKeyCapture::processFrame(const FrameInfo &info,
                                  const uint8_t *rawFrame, uint8_t rawLen,
                                  uint8_t macPayloadOffset) {
+
+        // Temporary debug — remove after confirming calls
+    if (info.frameType == FC_FRAME_TYPE_DATA && info.zbNwkSecurityEnabled)
+        Serial.printf("[KC] encrypted data from 0x%04X→0x%04X nwkSrc=0x%04X\n",
+                          info.macSrc, info.macDst, info.route.nwkSrc);
+
+ // Debug
+     Serial.printf("[KC] frame type=%u proto=%u zbSec=%d src=0x%04X dst=0x%04X\n",
+                   info.frameType, (uint8_t)info.protocol, info.zbNwkSecurityEnabled,
+                               info.route.nwkSrc, info.route.nwkDst);
+
+
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
         if (rawLen > macPayloadOffset && rawFrame[macPayloadOffset] == 0x02) {
             _handleAssocResponse(info);
