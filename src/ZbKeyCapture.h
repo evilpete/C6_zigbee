@@ -70,6 +70,12 @@ private:
                              const uint8_t *key,
                              uint8_t *plaintextOut, uint8_t &plaintextLen);
 
+    bool _decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
+                         uint8_t apsOffset,
+                         const uint8_t *key,
+                         uint64_t knownExtSrc,
+                         uint8_t *plaintextOut, uint8_t &plaintextLen);
+
     // Parse decrypted APS Transport Key command
     bool _parseTransportKey(const uint8_t *aps, uint8_t apsLen,
                              uint8_t *networkKeyOut, uint8_t &seqNumOut);

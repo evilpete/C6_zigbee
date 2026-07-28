@@ -642,6 +642,12 @@ bool IEEE802154Sniffer::_updateHost(const FrameInfo &info) {
             memset(h->label, 0, sizeof(h->label));
             hosts.add(h);
         }
+        // After the host lookup/create block, add:
+        if (addr == info.macSrc && info.srcExtended != 0 && h->extAddr == 0)
+            h->extAddr = info.srcExtended;
+        if (addr == info.macDst && info.dstExtended != 0 && h->extAddr == 0)
+            h->extAddr = info.dstExtended;
+
 
         // RSSI / LQI
         h->rssiLast    = info.rssi;
