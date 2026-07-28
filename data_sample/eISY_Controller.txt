@@ -1,0 +1,382 @@
+Empty    DATA controller.data = Empty
+Integer  DATA controller.data.EzspVersion = 9 (0x00000009)
+Integer  DATA controller.data.stackType = 2 (0x00000002)
+Integer  DATA controller.data.stackVersion = 28976 (0x00007130)
+Integer  DATA controller.data.freeBuffers = 254 (0x000000fe)
+Integer  DATA controller.data.packetBufferCount = 255 (0x000000ff)
+Integer  DATA controller.data.ApsUnicastMessageCount = 10 (0x0000000a)
+String   DATA controller.data.softwareRevisionVersion = "v4.1.4-75-g63ee8b9"
+String   DATA controller.data.softwareRevisionId = "63ee8b94ddfd4fc00795575db3de51cdb2021699"
+String   DATA controller.data.softwareRevisionDate = "2025-10-03 14:10:48 +0300"
+Integer  DATA controller.data.controllerState = 0 (0x00000000)
+Int[]    DATA controller.data.defaultExtendedPanId = int[8]
+  [00] 1341877509
+  [01] 2025739567
+  [02] 0
+  [03] 0
+  [04] 0
+  [05] 0
+  [06] 0
+  [07] 0
+Integer  DATA controller.data.defaultPanId = 9927 (0x000026c7)
+Integer  DATA controller.data.defaultRadioTxPower = 20 (0x00000014)
+Integer  DATA controller.data.defaultRadioChannel = 26 (0x0000001a)
+Integer  DATA controller.data.defaultJoinMethod = 0 (0x00000000)
+Integer  DATA controller.data.defaultNwkManagerId = 0 (0x00000000)
+Integer  DATA controller.data.defaultNwkUpdateId = 0 (0x00000000)
+Integer  DATA controller.data.defaultChannels = 134215680 (0x07fff800)
+Integer  DATA controller.data.deviceRelaxDelay = 1 (0x00000001)
+Integer  DATA controller.data.defaultMulticastTableSize = 16 (0x00000010)
+Integer  DATA controller.data.defaultIndirectTransmissionTimeout = 7680 (0x00001e00)
+Integer  DATA controller.data.defaultSupportedNetworks = 1 (0x00000001)
+Integer  DATA controller.data.defaultApplicationZdoFlags = 3 (0x00000003)
+Integer  DATA controller.data.defaultSecurityLevel = 5 (0x00000005)
+Integer  DATA controller.data.defaultEndDevicePollTimeout = 14 (0x0000000e)
+Integer  DATA controller.data.defaultSourceRouteTableSize = 16 (0x00000010)
+Integer  DATA controller.data.defaultTCRejoinsUsingWellKnownKeyTimeoutS = 90 (0x0000005a)
+Integer  DATA controller.data.defaultAddressTableSize = 16 (0x00000010)
+Integer  DATA controller.data.defaultStackProfile = 2 (0x00000002)
+Integer  DATA controller.data.defaultPanIdConflictReportThreshold = 2 (0x00000002)
+Integer  DATA controller.data.defaultTrustCenterAddressCacheSize = 2 (0x00000002)
+Integer  DATA controller.data.defaultFreeBuffers = 255 (0x000000ff)
+Integer  DATA controller.data.defaultFragmentDelayMs = 50 (0x00000032)
+Integer  DATA controller.data.defaultFragmentWindowSize = 1 (0x00000001)
+Integer  DATA controller.data.indirectTransmissionTimeout = 0 (0x00000000)
+Integer  DATA controller.data.sourceRouteTableSize = 0 (0x00000000)
+Integer  DATA controller.data.endDevicePollTimeout = 0 (0x00000000)
+Integer  DATA controller.data.supportedNetworks = 0 (0x00000000)
+Integer  DATA controller.data.panIdConflictReportThreshold = 0 (0x00000000)
+Integer  DATA controller.data.stackProfile = 0 (0x00000000)
+Integer  DATA controller.data.securityLevel = 5 (0x00000005)
+Integer  DATA controller.data.addressTableSize = 0 (0x00000000)
+Integer  DATA controller.data.trustCenterAddressCacheSize = 0 (0x00000000)
+Integer  DATA controller.data.multicastTableSize = 64 (0x00000040)
+Integer  DATA controller.data.TCRejoinsUsingWellKnownKeyTimeoutS = 0 (0x00000000)
+Integer  DATA controller.data.applicationZdoFlags = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable = Empty
+Empty    DATA controller.data.multicastTable.0 = Empty
+Integer  DATA controller.data.multicastTable.0.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.0.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.1 = Empty
+Integer  DATA controller.data.multicastTable.1.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.1.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.2 = Empty
+Integer  DATA controller.data.multicastTable.2.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.2.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.3 = Empty
+Integer  DATA controller.data.multicastTable.3.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.3.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.4 = Empty
+Integer  DATA controller.data.multicastTable.4.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.4.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.5 = Empty
+Integer  DATA controller.data.multicastTable.5.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.5.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.6 = Empty
+Integer  DATA controller.data.multicastTable.6.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.6.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.7 = Empty
+Integer  DATA controller.data.multicastTable.7.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.7.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.8 = Empty
+Integer  DATA controller.data.multicastTable.8.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.8.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.9 = Empty
+Integer  DATA controller.data.multicastTable.9.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.9.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.10 = Empty
+Integer  DATA controller.data.multicastTable.10.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.10.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.11 = Empty
+Integer  DATA controller.data.multicastTable.11.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.11.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.12 = Empty
+Integer  DATA controller.data.multicastTable.12.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.12.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.13 = Empty
+Integer  DATA controller.data.multicastTable.13.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.13.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.14 = Empty
+Integer  DATA controller.data.multicastTable.14.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.14.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.15 = Empty
+Integer  DATA controller.data.multicastTable.15.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.15.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.16 = Empty
+Integer  DATA controller.data.multicastTable.16.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.16.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.17 = Empty
+Integer  DATA controller.data.multicastTable.17.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.17.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.18 = Empty
+Integer  DATA controller.data.multicastTable.18.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.18.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.19 = Empty
+Integer  DATA controller.data.multicastTable.19.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.19.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.20 = Empty
+Integer  DATA controller.data.multicastTable.20.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.20.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.21 = Empty
+Integer  DATA controller.data.multicastTable.21.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.21.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.22 = Empty
+Integer  DATA controller.data.multicastTable.22.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.22.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.23 = Empty
+Integer  DATA controller.data.multicastTable.23.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.23.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.24 = Empty
+Integer  DATA controller.data.multicastTable.24.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.24.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.25 = Empty
+Integer  DATA controller.data.multicastTable.25.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.25.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.26 = Empty
+Integer  DATA controller.data.multicastTable.26.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.26.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.27 = Empty
+Integer  DATA controller.data.multicastTable.27.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.27.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.28 = Empty
+Integer  DATA controller.data.multicastTable.28.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.28.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.29 = Empty
+Integer  DATA controller.data.multicastTable.29.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.29.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.30 = Empty
+Integer  DATA controller.data.multicastTable.30.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.30.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.31 = Empty
+Integer  DATA controller.data.multicastTable.31.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.31.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.32 = Empty
+Integer  DATA controller.data.multicastTable.32.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.32.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.33 = Empty
+Integer  DATA controller.data.multicastTable.33.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.33.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.34 = Empty
+Integer  DATA controller.data.multicastTable.34.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.34.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.35 = Empty
+Integer  DATA controller.data.multicastTable.35.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.35.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.36 = Empty
+Integer  DATA controller.data.multicastTable.36.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.36.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.37 = Empty
+Integer  DATA controller.data.multicastTable.37.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.37.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.38 = Empty
+Integer  DATA controller.data.multicastTable.38.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.38.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.39 = Empty
+Integer  DATA controller.data.multicastTable.39.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.39.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.40 = Empty
+Integer  DATA controller.data.multicastTable.40.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.40.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.41 = Empty
+Integer  DATA controller.data.multicastTable.41.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.41.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.42 = Empty
+Integer  DATA controller.data.multicastTable.42.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.42.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.43 = Empty
+Integer  DATA controller.data.multicastTable.43.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.43.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.44 = Empty
+Integer  DATA controller.data.multicastTable.44.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.44.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.45 = Empty
+Integer  DATA controller.data.multicastTable.45.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.45.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.46 = Empty
+Integer  DATA controller.data.multicastTable.46.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.46.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.47 = Empty
+Integer  DATA controller.data.multicastTable.47.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.47.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.48 = Empty
+Integer  DATA controller.data.multicastTable.48.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.48.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.49 = Empty
+Integer  DATA controller.data.multicastTable.49.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.49.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.50 = Empty
+Integer  DATA controller.data.multicastTable.50.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.50.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.51 = Empty
+Integer  DATA controller.data.multicastTable.51.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.51.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.52 = Empty
+Integer  DATA controller.data.multicastTable.52.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.52.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.53 = Empty
+Integer  DATA controller.data.multicastTable.53.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.53.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.54 = Empty
+Integer  DATA controller.data.multicastTable.54.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.54.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.55 = Empty
+Integer  DATA controller.data.multicastTable.55.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.55.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.56 = Empty
+Integer  DATA controller.data.multicastTable.56.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.56.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.57 = Empty
+Integer  DATA controller.data.multicastTable.57.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.57.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.58 = Empty
+Integer  DATA controller.data.multicastTable.58.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.58.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.59 = Empty
+Integer  DATA controller.data.multicastTable.59.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.59.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.60 = Empty
+Integer  DATA controller.data.multicastTable.60.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.60.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.61 = Empty
+Integer  DATA controller.data.multicastTable.61.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.61.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.62 = Empty
+Integer  DATA controller.data.multicastTable.62.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.62.networkId = 0 (0x00000000)
+Empty    DATA controller.data.multicastTable.63 = Empty
+Integer  DATA controller.data.multicastTable.63.endpoint = 0 (0x00000000)
+Integer  DATA controller.data.multicastTable.63.networkId = 0 (0x00000000)
+String   DATA controller.data.radioManufacturer = "G"
+String   DATA controller.data.radioBoardName = ""
+Integer  DATA controller.data.EmberZNetVersionBuild = 342 (0x00000156)
+Integer  DATA controller.data.EmberZNetVersionMajor = 7 (0x00000007)
+Integer  DATA controller.data.EmberZNetVersionMinor = 1 (0x00000001)
+Integer  DATA controller.data.EmberZNetVersionPatch = 3 (0x00000003)
+Integer  DATA controller.data.EmberZNetVersionSpecial = 0 (0x00000000)
+Boolean  DATA controller.data.isNetworkUp = True
+Boolean  DATA controller.data.isNetworkOpen = False
+Integer  DATA controller.data.networkState = 2 (0x00000002)
+Integer  DATA controller.data.nodeType = 1 (0x00000001)
+Int[]    DATA controller.data.extendedPanId = int[8]
+  [00] 221
+  [01] 221
+  [02] 221
+  [03] 221
+  [04] 221
+  [05] 221
+  [06] 221
+  [07] 221
+Integer  DATA controller.data.panId = 27224 (0x00006a58)
+Integer  DATA controller.data.radioTxPower = 20 (0x00000014)
+Integer  DATA controller.data.radioPower = 0 (0x00000000)
+Integer  DATA controller.data.radioChannel = 26 (0x0000001a)
+Integer  DATA controller.data.joinMethod = 0 (0x00000000)
+Integer  DATA controller.data.nwkManagerId = 0 (0x00000000)
+Integer  DATA controller.data.nwkUpdateId = 0 (0x00000000)
+Integer  DATA controller.data.channels = 134215680 (0x07fff800)
+Integer  DATA controller.data.nodeId = 0 (0x00000000)
+Int[]    DATA controller.data.Eui64 = int[8]
+  [00] 140
+  [01] 254
+  [02] 255
+  [03] 21
+  [04] 205
+  [05] 4
+  [06] 107
+  [07] 163
+Empty    DATA controller.data.coreVersion = Empty
+Empty    DATA controller.data.buildSeq = Empty
+Empty    DATA controller.data.buildTs = Empty
+Empty    DATA controller.data.hwRevision = Empty
+Empty    DATA controller.data.sdkRevision = Empty
+Empty    DATA controller.data.chipUuid = Empty
+Empty    DATA controller.data.snRaw = Empty
+Empty    DATA controller.data.bootloaderVersion = Empty
+Empty    DATA controller.data.bootloaderCrc32 = Empty
+Empty    DATA controller.data.lockStatus = Empty
+Empty    DATA controller.data.seVersion = Empty
+Integer  DATA controller.data.logicalType = 0 (0x00000000)
+Boolean  DATA controller.data.complexDescAvailable = False
+Boolean  DATA controller.data.userDescAvailable = False
+Integer  DATA controller.data.apsFlag = 0 (0x00000000)
+Integer  DATA controller.data.freqBand = 8 (0x00000008)
+Integer  DATA controller.data.macCapabilityFlag = 207 (0x000000cf)
+Integer  DATA controller.data.manufacturerCode = 0 (0x00000000)
+Integer  DATA controller.data.maxBufferSize = 130 (0x00000082)
+Integer  DATA controller.data.maxIncomingTransSize = 130 (0x00000082)
+Integer  DATA controller.data.serverMask = 0 (0x00000000)
+Integer  DATA controller.data.maxOutgoingTransSize = 130 (0x00000082)
+Integer  DATA controller.data.descriptorCapability = 0 (0x00000000)
+Empty    DATA controller.data.lastIncludedDevice = Empty
+Empty    DATA controller.data.lastExcludedDevice = Empty
+Integer  DATA controller.data.securityOptionsBitmask = 244 (0x000000f4)
+Empty    DATA controller.data.currentNetworkKey = Empty
+Int[]    DATA controller.data.currentNetworkKey.key = int[16]
+  [00] 90
+  [01] 105
+  [02] 103
+  [03] 66
+  [04] 101
+  [05] 101
+  [06] 65
+  [07] 108
+  [08] 108
+  [09] 105
+  [10] 97
+  [11] 110
+  [12] 99
+  [13] 101
+  [14] 48
+  [15] 57
+Integer  DATA controller.data.currentNetworkKey.outgoingFrameCounter = 2617345 (0x0027f001)
+Integer  DATA controller.data.currentNetworkKey.incomingFrameCounter = 0 (0x00000000)
+Integer  DATA controller.data.currentNetworkKey.sequenceNumber = 0 (0x00000000)
+Int[]    DATA controller.data.currentNetworkKey.partnerEui64 = int[8]
+  [00] 140
+  [01] 254
+  [02] 255
+  [03] 21
+  [04] 205
+  [05] 4
+  [06] 107
+  [07] 163
+Integer  DATA controller.data.currentNetworkKey.isAuthorized = 0 (0x00000000)
+Integer  DATA controller.data.currentNetworkKey.isSleepy = 0 (0x00000000)
+Integer  DATA controller.data.currentNetworkKey.isUnconfirmed = 0 (0x00000000)
+Empty    DATA controller.data.trustCenterLinkKey = Empty
+Int[]    DATA controller.data.trustCenterLinkKey.key = int[16]
+  [00] 1
+  [01] 164
+  [02] 16
+  [03] 98
+  [04] 191
+  [05] 158
+  [06] 173
+  [07] 122
+  [08] 143
+  [09] 231
+  [10] 42
+  [11] 189
+  [12] 182
+  [13] 248
+  [14] 24
+  [15] 131
+Integer  DATA controller.data.trustCenterLinkKey.outgoingFrameCounter = 36864 (0x00009000)
+Integer  DATA controller.data.trustCenterLinkKey.incomingFrameCounter = 0 (0x00000000)
+Integer  DATA controller.data.trustCenterLinkKey.sequenceNumber = 0 (0x00000000)
+Int[]    DATA controller.data.trustCenterLinkKey.partnerEui64 = int[8]
+  [00] 140
+  [01] 254
+  [02] 255
+  [03] 21
+  [04] 205
+  [05] 4
+  [06] 107
+  [07] 163
+Integer  DATA controller.data.trustCenterLinkKey.isAuthorized = 1 (0x00000001)
+Integer  DATA controller.data.trustCenterLinkKey.isSleepy = 0 (0x00000000)
+Integer  DATA controller.data.trustCenterLinkKey.isUnconfirmed = 0 (0x00000000)
+String   DATA controller.data.homeName = ""
+String   DATA controller.data.homeNotes = ""
+
+
