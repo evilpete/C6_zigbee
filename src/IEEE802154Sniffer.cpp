@@ -354,10 +354,23 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
     } else if (info.frameType == FC_FRAME_TYPE_ACK) {
         info.protocolName = "ACK";
         info.functionName = "";
+
     } else if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
         info.protocolName = "MAC Cmd";
-        info.functionName = "";
+        // Decode command ID from payload
+        if (off < len) {
+            switch (p[off]) {
+                case 0x01: info.functionName = "Assoc Request";  break;
+                case 0x02: info.functionName = "Assoc Response"; break;
+                case 0x03: info.functionName = "Disassoc";       break;
+                case 0x04: info.functionName = "Data Request";   break;
+                case 0x07: info.functionName = "Beacon Request"; break;
+                default:   info.functionName = "MAC Cmd";        break;
+            }
+        }
     }
+
+
 
     if (!info.protocolName) {
         info.protocolName = "802.15.4";

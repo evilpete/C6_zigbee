@@ -39,23 +39,21 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
                                  const uint8_t *rawFrame, uint8_t rawLen,
                                  uint8_t macPayloadOffset) {
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
-        // Check MAC payload byte for Association Response (0x02)
         if (rawLen > macPayloadOffset && rawFrame[macPayloadOffset] == 0x02) {
             _handleAssocResponse(info);
         }
         return false;
     }
 
-    // For Zigbee data frames - NWK payload starts at macPayloadOffset
     if (info.protocol == FrameProtocol::ZIGBEE &&
         info.frameType == FC_FRAME_TYPE_DATA &&
         info.zbNwkSecurityEnabled) {
         if (macPayloadOffset >= rawLen) return false;
+        // Pass NWK payload slice — not the full raw frame
         return _handleTransportKey(info,
                                    &rawFrame[macPayloadOffset],
                                    rawLen - macPayloadOffset);
     }
-
     return false;
 }
 

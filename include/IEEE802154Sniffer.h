@@ -234,6 +234,7 @@ public:
                          const uint8_t *rawFrame, uint8_t rawLen,
                          uint8_t macPayloadOffset) = nullptr;
 
+
     static void rxCallback(uint8_t *frame, esp_ieee802154_frame_info_t *fi);
 
     std::array<uint8_t, 16> active_channels = {0};
