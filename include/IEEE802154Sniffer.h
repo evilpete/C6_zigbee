@@ -336,7 +336,8 @@ public:
     static void rxCallback(uint8_t *frame, esp_ieee802154_frame_info_t *fi);
 
     // channel Info: index +11  + one extra for future flags
-    uint8_t  active_channels[16] = {0};
+    std::array<uint8_t, 16> active_channels = {0};
+    // uint8_t  active_channels[16] = {0};
 
 private:
     uint8_t  _channel;

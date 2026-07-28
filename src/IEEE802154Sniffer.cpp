@@ -768,7 +768,7 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     if (!info.hasRoute || (info.route.nwkSrc == info.macSrc &&
                             info.route.nwkDst == info.macDst &&
                             info.route.hopCount == 0)) {
-        Serial.printf("[%02u] %-8s  %-10s→%-10s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
+        Serial.printf("[%02u] %-8s  %-12s→%-12s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.channel, info.protocolName,
             srcBuf, dstBuf, info.panId,
             info.functionName ? info.functionName : "",
@@ -777,7 +777,7 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
         addrLabel(info.route.nwkSrc, nwkSrcBuf, sizeof(nwkSrcBuf));
         addrLabel(info.route.nwkDst, nwkDstBuf, sizeof(nwkDstBuf));
 
-        Serial.printf("[%02u] %-8s  MAC:%-6s→%-10s  NWK:%-10s→%-10s",
+        Serial.printf("[%02u] %-8s  MAC:%-10s→%-10s  NWK:%-10s→%-10s",
             info.channel, info.protocolName,
             srcBuf, dstBuf, nwkSrcBuf, nwkDstBuf);
 

@@ -159,13 +159,13 @@ void scanChannels() {
 
         // look Through capture list and mark channels
 
-        //  [[clang::suppress("type", "bounds")]];
-        for (int i = 0; i < sniffer.hosts.size(); i++) {
+        //  [[clang::suppress("type", "bounds")]];  [[clang::suppress]];
+        for (int i = 0; i < sniffer.hosts.size(); i++) { 
           HostRecord *h = sniffer.hosts.get(i);
           if (h->channel)
-            __attribute__((suppress))
-            sniffer.active_channels[h->channel -10]++;
-            [[clang::suppress]];
+            // __attribute__((suppress))
+            // sniffer.active_channels[h->channel -10]++; [[clang::suppress]];
+            sniffer.active_channels.at(h->channel -10)++;
 
         }
 
@@ -288,7 +288,7 @@ void handleSerial() {
         int c1 = rest.indexOf(',');
         int c2 = rest.indexOf(',', c1 + 1);
         if (c1 > 0 && c2 > c1) {
-            uint16_t addr = static_cast<uint16_t>strtol(rest.substring(0, c1).c_str(), nullptr, 16);
+            uint16_t addr = (uint16_t)strtol(rest.substring(0, c1).c_str(), nullptr, 16);
             char type = rest.charAt(c1 + 1);
             String label = rest.substring(c2 + 1);
             if (sniffer.labelHost(addr, type, label.c_str()))
