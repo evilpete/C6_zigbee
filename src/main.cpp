@@ -25,60 +25,6 @@
 #include "ZbKeyCapture.h"
 #include "ZbKeyCapture.h"
 
-/*
-// -- WS2812B ------------------------------------------------------------------
-#define LED_PIN     8
-#define LED_COUNT   1
-#define LED_BRIGHT  40   // 0-255, keep low for power/heat
-
-Adafruit_NeoPixel led(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-
-// Colours
-#define COL_OFF     led.Color(0,   0,   0)
-#define COL_BLUE    led.Color(0,   0,   80)
-#define COL_GREEN   led.Color(0,   80,  0)
-#define COL_PURPLE  led.Color(60,  0,   80)
-#define COL_YELLOW  led.Color(80,  60,  0)
-#define COL_RED     led.Color(80,  0,   0)
-#define COL_WHITE   led.Color(40,  40,  40)
-
-static uint32_t _flashColor    = 0;
-static uint32_t _flashUntil    = 0;
-static uint32_t _pulseLastMs   = 0;
-static uint8_t  _pulseBright   = 0;
-static int8_t   _pulseDir      = 1;
-
-void ledFlash(uint32_t color, uint16_t duration_ms = 80) {
-    _flashColor = color;
-    _flashUntil = millis() + duration_ms;
-    led.setBrightness(LED_BRIGHT * 3);
-    led.setPixelColor(0, color);
-    led.show();
-}
-
-void ledUpdate() {
-    uint32_t now = millis();
-    if (_flashUntil > 0) {
-        if (now >= _flashUntil) {
-            _flashUntil = 0;
-            led.setBrightness(LED_BRIGHT);
-            led.setPixelColor(0, COL_OFF);
-            led.show();
-        }
-        return;
-    }
-    // Blue pulse when idle (no flash pending)
-    if (now - _pulseLastMs > 20) {
-        _pulseLastMs = now;
-        _pulseBright += _pulseDir * 3;
-        if (_pulseBright >= 60)  { _pulseBright = 60;  _pulseDir = -1; }
-        if (_pulseBright == 0)   { _pulseBright = 0;   _pulseDir =  1; }
-        led.setBrightness(LED_BRIGHT);
-        led.setPixelColor(0, led.Color(0, 0, _pulseBright));
-        led.show();
-    }
-}
-*/
 
 // -- Known device labels -------------------------------------------------------
 // Format: "addr,type,label\n"  type: C=coordinator R=router E=end device
@@ -136,59 +82,6 @@ void print_active_ch() {
   Serial.println();
 }
 
-
-/*
-void startScanChannels() {
-  sniffer.stopChannelHop();
-  hopping = false;
-  sniffer.setChannel(SNIFFER_MIN_CHANNEL);
-  ledFlash(COL_WHITE, 100);
-  _channelScan = millis() + 1000;
-
-  // channel 0 is a flag
-  sniffer.active_channels[0] = 1;
-  // SEND Request beacons
-}
-*/
-
-/*
-void scanChannels() {
-    if (!_channelScan) { // if Zero we are not scanning
-      return;
-    }
-    uint32_t now = millis();
-    if (now < _channelScan)
-      return;
-
-    uint8_t ch = sniffer.getChannel() + 1;
-
-    if (ch > SNIFFER_MAX_CHANNEL) {
-        _channelScan = 0; // Stop Scan
-
-        // look Through capture list and mark channels
-
-        //  [[clang::suppress("type", "bounds")]];  [[clang::suppress]];
-        for (int i = 0; i < sniffer.hosts.size(); i++) { 
-          HostRecord *h = sniffer.hosts.get(i);
-          if (h->channel)
-            // __attribute__((suppress))
-            // sniffer.active_channels[h->channel -10]++; [[clang::suppress]];
-            sniffer.active_channels.at(h->channel -10)++;
-        }
-        print_active_ch();
-
-        return;
-    }
-
-    sniffer.setChannel(ch);
-    ledFlash(COL_WHITE, 100);
-
-    // SEND Request beacons
-
-    // restart timer
-    _channelScan = millis() + 1000;
-}
-*/
 
 
 // -- Active channel scan -------------------------------------------------------

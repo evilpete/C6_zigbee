@@ -160,17 +160,97 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     if (apsOffset >= nwkLen) return false;
 
     // Parse APS FC byte to determine if APS-secured
-    uint8_t apsFc = nwkPayload[apsOffset];
-    uint8_t apsFrameType   = apsFc & 0x03;          // bits[1:0]
-    bool    apsSecured     = (apsFc >> 5) & 0x01;   // bit 5
+
+
+uint8_t apsFc = nwkPayload[apsOffset];
+    uint8_t apsFrameType   = apsFc & 0x03;
+    bool    apsSecured     = (apsFc >> 5) & 0x01;
 
     Serial.printf("[KC] APS FC=0x%02X type=%u secured=%u\n",
                   apsFc, apsFrameType, apsSecured);
 
-    // Try each TCLK we have
-    for (int ki = 0; ki < _sniffer.keys.size(); ki++) {
-        ZbKey *k = _sniffer.keys.get(ki);
-        if (k->type != ZbKeyType::TRUST_CENTER_LINK) continue;
+    // Check if APS payload is actually encrypted or just MIC-authenticated
+    if (apsSecured && apsOffset + 1 < nwkLen) {
+        uint8_t auxSecCtrl = nwkPayload[apsOffset + 1];
+        uint8_t secLevel   = auxSecCtrl & 0x07;
+
+        if (secLevel == 0x01 || secLevel == 0x00) {
+            // MIC-32 only or no security — payload is plaintext
+            // Parse APS command directly after AUX header
+            uint8_t auxLen = 5;                        // secCtrl(1)+fc(4)
+            if ((auxSecCtrl >> 6) & 1) auxLen += 8;   // extSrc
+            auxLen += 1;                               // keySeq
+            uint8_t apsPayloadOff = apsOffset + 1 + auxLen;
+
+            Serial.printf("[KC] secLevel=%u — plaintext APS, apsPayloadOff=%u\n",
+                          secLevel, apsPayloadOff);
+
+            if (apsPayloadOff + ZB_MIC_LEN < nwkLen) {
+                uint8_t networkKey[ZIGBEE_KEY_LEN] = {};
+                uint8_t keySeqNum = 0;
+                if (_parseTransportKey(&nwkPayload[apsPayloadOff],
+                                       nwkLen - apsPayloadOff - ZB_MIC_LEN,
+                                       networkKey, keySeqNum)) {
+                    Serial.printf("[KeyCapture] *** Network key captured (plaintext)! seq=%u ***\n", keySeqNum);
+                    Serial.print("[KeyCapture] Key: ");
+                    for (int i = 0; i < ZIGBEE_KEY_LEN; i++)
+                        Serial.printf("%02X%s", networkKey[i], i < ZIGBEE_KEY_LEN-1 ? ":" : "\n");
+
+                    char label[16];
+                    snprintf(label, sizeof(label), "NWK-seq%u", keySeqNum);
+                    _sniffer.addKey(ZbKeyType::NETWORK, networkKey, keySeqNum, label);
+                    _freeJoin(j);
+                    if (onKeyCapture) {
+                        ZbKey *captured = _sniffer.findNetworkKey(keySeqNum);
+                        if (captured) onKeyCapture(*captured);
+                    }
+                    return true;
+                }
+            }
+        }
+    }
+
+
+// ... after APS FC parse ...
+
+    uint8_t auxSecCtrl = nwkPayload[apsOffset + 1];
+    uint8_t secLevel   = auxSecCtrl & 0x07;
+
+    Serial.printf("[KC] APS FC=0x%02X type=%u secured=%u secLevel=%u\n",
+                  apsFc, apsFrameType, apsSecured, secLevel);
+
+    // Plaintext path — secLevel 0 or 1 means no encryption
+    if (apsSecured && (secLevel == 0x00 || secLevel == 0x01)) {
+        uint8_t auxLen = 6;                        // secCtrl(1)+fc(4)+keySeq(1)
+        if ((auxSecCtrl >> 6) & 1) auxLen += 8;   // extSrc
+        uint8_t apsPayloadOff = apsOffset + 1 + auxLen;
+        Serial.printf("[KC] plaintext APS at offset=%u\n", apsPayloadOff);
+        if (apsPayloadOff + ZB_MIC_LEN < nwkLen) {
+            uint8_t networkKey[ZIGBEE_KEY_LEN] = {};
+            uint8_t keySeqNum = 0;
+            if (_parseTransportKey(&nwkPayload[apsPayloadOff],
+                                   nwkLen - apsPayloadOff - ZB_MIC_LEN,
+                                   networkKey, keySeqNum)) {
+                Serial.printf("[KeyCapture] *** Network key (plaintext)! seq=%u ***\n", keySeqNum);
+                Serial.print("[KeyCapture] Key: ");
+                for (int i = 0; i < ZIGBEE_KEY_LEN; i++)
+                    Serial.printf("%02X%s", networkKey[i], i < 15 ? ":" : "\n");
+                char label[16];
+                snprintf(label, sizeof(label), "NWK-seq%u", keySeqNum);
+                _sniffer.addKey(ZbKeyType::NETWORK, networkKey, keySeqNum, label);
+                _freeJoin(j);
+                return true;
+            }
+        }
+        // plaintext parse failed — fall through to TCLK attempt anyway
+    }
+
+
+    // Try TCLK decryption for encrypted payloads (secLevel >= 5)
+        // Try each TCLK we have
+        for (int ki = 0; ki < _sniffer.keys.size(); ki++) {
+            ZbKey *k = _sniffer.keys.get(ki);
+            if (k->type != ZbKeyType::TRUST_CENTER_LINK) continue;
 
         uint8_t plaintext[64] = {};
         uint8_t plaintextLen  = 0;
@@ -189,6 +269,7 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
                                      k->key, plaintext, plaintextLen);
         }
 
+
         if (!ok) continue;
 
         // Parse the decrypted APS payload
@@ -198,6 +279,7 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
             Serial.println("[KC] APS parse failed after decrypt");
             continue;
         }
+
 
         Serial.printf("[KeyCapture] *** Network key captured! seq=%u ***\n", keySeqNum);
         Serial.print("[KeyCapture] Key: ");
