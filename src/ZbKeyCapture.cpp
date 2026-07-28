@@ -58,8 +58,7 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
     }
 
     if (info.protocol == FrameProtocol::ZIGBEE &&
-        info.frameType == FC_FRAME_TYPE_DATA &&
-        info.zbNwkSecurityEnabled) {
+        info.frameType == FC_FRAME_TYPE_DATA) {     //  && info.zbNwkSecurityEnabled) 
         if (macPayloadOffset >= rawLen) return false;
         // Pass NWK payload slice — not the full raw frame
         return _handleTransportKey(info,
