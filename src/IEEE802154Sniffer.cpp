@@ -370,11 +370,19 @@ bool IEEE802154Sniffer::_decodeMac(const SnifferFrame &raw, FrameInfo &info) {
                 case 0x02: info.functionName = "Assoc Response"; break;
                 case 0x03: info.functionName = "Disassoc";       break;
                 case 0x04: info.functionName = "Data Request";   break;
+                case 0x05: info.functionName = "PAN ID Conflict Notification";   break;
+                case 0x06: info.functionName = "Orphan Notification";   break;
                 case 0x07: info.functionName = "Beacon Request"; break;
+                case 0x08: info.functionName = "Coordinator Realignment"; break;
+                case 0x09: info.functionName = "GTS Request"; break;
+                case 0x0A: info.functionName = "TRLE Management Request"; break;
+                case 0x0B: info.functionName = "TRLE Management Response"; break;
+                case 0x13: info.functionName = "DSME Association Request"; break;
                 default:   info.functionName = "MAC Cmd";        break;
             }
         }
     }
+
 
 
 
