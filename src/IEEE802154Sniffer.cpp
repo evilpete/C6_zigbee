@@ -412,11 +412,19 @@ bool IEEE802154Sniffer::_decodeZigbeeNwk(const uint8_t *p, uint8_t len,
     }
 
     // Optional extended destination address
-    if ((nwkFc & ZB_NWK_FC_EXT_DST) && off + 8 <= len) off += 8;
+    if ((nwkFc & ZB_NWK_FC_EXT_DST) && off + 8 <= len) {
+      uint64_t extDst = 0;
+      memcpy(&extDst, &p[off], 8);
+      if (info.dstExtended == 0) info.dstExtended = extDst;
+      off += 8;
+    }
 
     // Optional extended source address
     if ((nwkFc & ZB_NWK_FC_EXT_SRC) && off + 8 <= len) {
         // Could capture NWK extended src here
+        uint64_t extSrc = 0;
+        memcpy(&extSrc, &p[off], 8);
+        if (info.srcExtended == 0) info.srcExtended = extSrc;
         off += 8;
     }
 
