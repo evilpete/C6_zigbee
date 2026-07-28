@@ -270,6 +270,14 @@ uint8_t apsFc = nwkPayload[apsOffset];
             HostRecord *coord = _sniffer.findHost(0x0000);
             if (coord) coordEUI64 = coord->extAddr;
             Serial.printf("[KC] coordEUI64=%016llX\n", coordEUI64);
+
+// DEBUG
+Serial.printf("[KC] coordEUI64=%016llX\n", coordEUI64);
+uint8_t *eu = (uint8_t*)&coordEUI64;
+Serial.printf("[KC] EUI64 bytes: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n",
+    eu[0],eu[1],eu[2],eu[3],eu[4],eu[5],eu[6],eu[7]);
+
+
             ok = _decryptApsPayload(nwkPayload, nwkLen, apsOffset,
                                      k->key, coordEUI64,
                                      plaintext, plaintextLen);
