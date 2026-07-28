@@ -150,6 +150,14 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     if (info.route.nwkSrc != 0x0000) return false;
     if (is_bcast(info.route.nwkDst))  return false;
 
+ // Hex dump — remove after debugging
+    Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
+                  nwkLen, info.route.nwkSrc, info.route.nwkDst);
+    Serial.print("[KC] NWK: ");
+    for (int i = 0; i < min((uint8_t)32, nwkLen); i++)
+        Serial.printf("%02X ", nwkPayload[i]);
+    Serial.println();
+
     // Check if destination recently joined — but try anyway even if missed
     JoinState *j = _findJoin(info.route.nwkDst);
     if (!j) {
@@ -255,7 +263,7 @@ bool ZbKeyCapture::_skipNwkHeader(const uint8_t *p, uint8_t len,
     }
 
     // NWK security bit must be set
-    if (!((nwkFc >> 1) & 0x01)) return false;
+    // if (!((nwkFc >> 1) & 0x01)) return false;
 
     // AUX security header starts here
     apsOffset = off;
