@@ -241,7 +241,7 @@ public:
     uint32_t getThreadCount()  const { return _threadCount; }
     uint32_t getDroppedCount() const { return _dropped; }
 
-    bool no_bcast      = false;
+    bool no_bcast      = true;
     bool no_duplicates = false;
 
     void (*onFrame)(const FrameInfo &info) = nullptr;
