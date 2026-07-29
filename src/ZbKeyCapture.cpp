@@ -36,10 +36,9 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
 
     log_d("ZbKeyCapture::processFrame");
     // Capture coordinator EUI64 whenever we see it
-    if (info.srcExtended != 0 &&
-        (info.macSrc == 0x0000 || info.route.nwkSrc == 0x0000)) {
+    if (info.srcExtended != 0 && info.macSrc == 0x0000) {
         _coordinatorEUI64 = info.srcExtended;
-    }
+        }
 
 
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
