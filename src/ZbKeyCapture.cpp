@@ -41,22 +41,24 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
         _coordinatorEUI64 = info.srcExtended;
     }
 
-    if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
-        Serial.printf("[KC] MAC CMD rawLen=%u cmd=0x%02X macSrc=0x%04X\n",
-                rawLen, rawLen > 0 ? rawPayload[0] : 0xFF, info.macSrc);
 
-        if (rawLen >= 1 && rawPayload[0] == 0x02)
+    if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
+        uint8_t cmdId = (macPayloadOffset < rawLen) ? rawPayload[macPayloadOffset] : 0xFF;
+        Serial.printf("[KC] MAC CMD rawLen=%u offset=%u cmd=0x%02X macSrc=0x%04X\n",
+                      rawLen, macPayloadOffset, cmdId, info.macSrc);
+        if (cmdId == 0x02)
             _handleAssocResponse(info);
         return false;
     }
 
-if (info.protocol == FrameProtocol::ZIGBEE &&
-    info.frameType == FC_FRAME_TYPE_DATA) {
-    Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
-                  info.route.nwkDst, info.route.nwkSrc, is_bcast(info.route.nwkDst));
-    if (!is_bcast(info.route.nwkDst))
-        return _handleTransportKey(info, rawPayload, rawLen);
-}
+
+  if (info.protocol == FrameProtocol::ZIGBEE &&
+      info.frameType == FC_FRAME_TYPE_DATA) {
+      Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
+                    info.route.nwkDst, info.route.nwkSrc, is_bcast(info.route.nwkDst));
+      if (!is_bcast(info.route.nwkDst))
+          return _handleTransportKey(info, rawPayload, rawLen);
+  }
 
     // Zigbee data frames - look for Transport Key regardless of NWK security bit
     if (info.protocol == FrameProtocol::ZIGBEE &&
