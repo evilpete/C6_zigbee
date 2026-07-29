@@ -381,14 +381,19 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     const uint8_t *ciphertext = &nwkPayload[encStart];
     const uint8_t *mic        = &nwkPayload[nwkLen - ZB_MIC_LEN];
 
-    if ((secLevel & 0x04) == 0) {
-        // No encryption — payload is plaintext, just copy it
-        // (optionally verify MIC, but skip for now)
-        uint8_t payloadLen = nwkLen - encStart - ZB_MIC_LEN;
-        memcpy(plaintextOut, &nwkPayload[encStart], payloadLen);
-        plaintextLen = payloadLen;
-        return true;
-    }
+
+  // If no encryption bit set, payload is plaintext — just strip the MIC
+  if ((secLevel & 0x04) == 0) {
+      uint8_t payloadLen = nwkLen - encStart - ZB_MIC_LEN;
+      Serial.printf("[KC] secLevel=%u plaintext path, payloadLen=%u\n", secLevel, payloadLen);
+      if (payloadLen == 0 || payloadLen > 95) return false;
+      memcpy(plaintextOut, &nwkPayload[encStart], payloadLen);
+      plaintextLen = payloadLen;
+      return true;
+  }
+  // else: secLevel >= 4, payload is encrypted — fall through to CCM*
+
+
 
     // Nonce: srcEUI64(8,LE) | frameCounter(4,LE) | secCtrl(1)
     uint8_t nonce[13];
