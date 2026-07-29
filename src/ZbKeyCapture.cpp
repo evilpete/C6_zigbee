@@ -61,13 +61,6 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
           return _handleTransportKey(info, rawPayload, rawLen);
   }
 
-    // Zigbee data frames - look for Transport Key regardless of NWK security bit
-    if (info.protocol == FrameProtocol::ZIGBEE &&
-        info.frameType == FC_FRAME_TYPE_DATA) {
-        if (!is_bcast(info.route.nwkDst))
-            return _handleTransportKey(info, rawPayload, rawLen);
-    }
-
     return false;
 }
 
@@ -382,12 +375,13 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     const uint8_t *mic        = &nwkPayload[nwkLen - ZB_MIC_LEN];
 
 
-  // If no encryption bit set, payload is plaintext — just strip the MIC
+  // If no encryption bit set, payload is plaintext — copy from APS FC onwards
+  // _parseTransportKey expects aps[0] = APS FC byte, so start at apsOffset not encStart
   if ((secLevel & 0x04) == 0) {
-      uint8_t payloadLen = nwkLen - encStart - ZB_MIC_LEN;
+      uint8_t payloadLen = nwkLen - apsOffset - ZB_MIC_LEN;
       Serial.printf("[KC] secLevel=%u plaintext path, payloadLen=%u\n", secLevel, payloadLen);
       if (payloadLen == 0 || payloadLen > 95) return false;
-      memcpy(plaintextOut, &nwkPayload[encStart], payloadLen);
+      memcpy(plaintextOut, &nwkPayload[apsOffset], payloadLen);
       plaintextLen = payloadLen;
       return true;
   }
