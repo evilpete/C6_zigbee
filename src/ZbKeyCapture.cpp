@@ -357,6 +357,11 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     uint8_t auxOff = 5; // past secCtrl + frameCounter
     uint8_t srcEui64[8] = {};
 
+
+    if (Verbose) {
+      Serial.printf("    SecLev=%s\n", sec_levels[secLevel]);
+    }
+
     if (hasExtSrc) {
         if (auxOff + 8 > remaining) return false;
         memcpy(srcEui64, &aux[auxOff], 8);
@@ -376,6 +381,15 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     const uint8_t *ciphertext = &nwkPayload[encStart];
     const uint8_t *mic        = &nwkPayload[nwkLen - ZB_MIC_LEN];
 
+    if ((secLevel & 0x04) == 0) {
+        // No encryption — payload is plaintext, just copy it
+        // (optionally verify MIC, but skip for now)
+        uint8_t payloadLen = nwkLen - encStart - ZB_MIC_LEN;
+        memcpy(plaintextOut, &nwkPayload[encStart], payloadLen);
+        plaintextLen = payloadLen;
+        return true;
+    }
+
     // Nonce: srcEUI64(8,LE) | frameCounter(4,LE) | secCtrl(1)
     uint8_t nonce[13];
     memcpy(nonce,     srcEui64, 8);
@@ -391,9 +405,6 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     for (int i = 0; i < 13; i++) Serial.printf("%02X", nonce[i]);
     Serial.printf(" fc=%08lX sc=%02X\n", frameCounter, secCtrl);
     Serial.printf("[KC] encStart=%u encLen=%u aadLen=%u\n", encStart, encLen, aadLen);
-    if (Verbose) {
-      Serial.printf("    SecLev=%s\n", sec_levels[secCtrl & 0x07]);
-    }
 
     if (encLen == 0 || encLen > 95) return false;
 
