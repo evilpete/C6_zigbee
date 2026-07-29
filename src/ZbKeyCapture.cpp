@@ -18,6 +18,8 @@
 #include "ZbKeyCapture.h"
 #include "mbedtls/ccm.h"
 
+extern uint8_t Verbose;
+
 #define APS_CMD_TRANSPORT_KEY   0x05
 #define APS_KEY_TYPE_NWK        0x01
 #define ZB_MIC_LEN              4
@@ -316,6 +318,18 @@ bool ZbKeyCapture::_skipNwkHeader(const uint8_t *p, uint8_t len,
     return true;
 }
 
+
+std::array<const String, 8> sec_levels = {
+  "No encryption and no MIC (unsecured frame)",
+  "No encryption with a 32-bit MIC (authenticity only)",
+  "No encryption with a 64-bit MIC (authenticity only)",
+  "No encryption with a 128-bit MIC (authenticity only)",
+  "AES-CCM encryption with no MIC (encryption only)",
+  "AES-CCM encryption with a 32-bit MIC (standard IoT balance)",
+  "AES-CCM encryption with a 64-bit MIC",
+  "AES-CCM encryption with a 128-bit MIC (maximum security)"
+};
+
 // -- Decrypt APS payload (TCLK-encrypted) -------------------------------------
 
 bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
@@ -377,6 +391,9 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     for (int i = 0; i < 13; i++) Serial.printf("%02X", nonce[i]);
     Serial.printf(" fc=%08lX sc=%02X\n", frameCounter, secCtrl);
     Serial.printf("[KC] encStart=%u encLen=%u aadLen=%u\n", encStart, encLen, aadLen);
+    if (Verbose) {
+      Serial.printf("    SecLev=%s\n", sec_levels[secCtrl & 0x07]);
+    }
 
     if (encLen == 0 || encLen > 95) return false;
 

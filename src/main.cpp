@@ -30,33 +30,10 @@
 // Format: "addr,type,label\n"  type: C=coordinator R=router E=end device
 static const char DEVICE_LABELS[] =
     "0000,C,Hub\n"
-    "0106,E,Soil_Monitor_2\n"
-    "04A7,R,Repeater 1\n"
-    "13AA,E,Weather B\n"
-    "16CC,E,On-Off W Button\n"
-    "1A2E,R,Color Bulb 1\n"
-    "1F28,R,Repeater 3\n"
-    "21CD,E,Furnace Water Sensor\n"
-    "35EA,R,Sonoff Repeater\n"
-    "3A7B,E,Soil_Monitor_5\n"
-    "40B3,E,Weather G\n"
-    "4298,E,On-Off 2\n"
-    "450F,R,Color Bulb 2\n"
-    "46C5,E,BT Water Sensor\n"
-    "5A4A,E,Motion Std CIE\n"
-    "5D3A,E,Soil_Monitor_3\n"
-    "6299,E,On-Off 1\n"
-    "71D9,E,Weather R\n"
-    "73AD,E,Blue On-Off Button\n"
-    "8880,E,Soil_Monitor_4\n"
-    "966A,E,Round Blue Button\n"
-    "9C26,E,K Water Sensor\n"
-    "B83A,E,Soil_Moisture\n"
-    "BBC9,E,Soil_Monitor_1\n"
-    "CA77,E,Main\n"
-    "D76B,E,Soil_Monitor_6\n"
-    "DD7A,E,Weather Disp\n"
-    "E234,E,Weather RD\n";
+    "CA77,E,Main\n";
+
+
+uint8_t Verbose = 0;
 
 // -- Sniffer -------------------------------------------------------------------
 IEEE802154Sniffer sniffer;
@@ -171,8 +148,16 @@ void handleSerial() {
             Serial.printf("Channel must be %u-%u\n",
                           SNIFFER_MIN_CHANNEL, SNIFFER_MAX_CHANNEL);
         }
+
     } else if (cmd == "H") {
       show_header();
+
+    } else if (cmd == "V") {
+      if (Verbose) 
+        Verbose = 0;
+      else
+        Verbose = 1;
+      Serial.printf("Verbose %s\n", Verbose ? "On" : "Off" );
 
     } else if (cmd == "B") {
       if (sniffer.no_bcast)
