@@ -14,6 +14,9 @@
  *   h       Toggle channel hop mode
  *   s       Print stats
  *   r       Reset stats
+ *   j       Print join status
+ *   J[addr] Join network as a plain end device (auto-picks an open host if
+ *           addr omitted, e.g. J04A7 to target a specific host)
  */
 
 #include "USB.h"
@@ -23,7 +26,7 @@
 #include "IEEE802154Sniffer.h"
 #include "SnifferSD.h"
 #include "ZbKeyCapture.h"
-#include "ZbKeyCapture.h"
+#include "ZbJoiner.h"
 
 
 // -- Known device labels -------------------------------------------------------
@@ -39,6 +42,7 @@ uint8_t Verbose = 0;
 IEEE802154Sniffer sniffer;
 SnifferSD         sd;
 ZbKeyCapture      keyCapture(sniffer);
+ZbJoiner          joiner(sniffer);
 static bool hopping = false;
 static bool scanning = false;
 static uint8_t scanChannel = 0;
@@ -238,8 +242,38 @@ void handleSerial() {
         sniffer.printKeys();
     } else if (cmd == "S") {
         startScanChannels();
+    } else if (cmd == "j") {
+        joiner.printStatus();
+    } else if (cmd[0] == 'J') {
+        // J          - auto-pick most recently seen host advertising association-permit
+        // J<addr>    - join via a specific host (hex short addr, e.g. J04A7)
+        HostRecord *parent = nullptr;
+        if (cmd.length() > 1) {
+            uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+            parent = sniffer.findHost(addr);
+            if (!parent)
+                Serial.printf("[Join] Unknown host 0x%04X - use 'l' to list hosts\n", addr);
+            else if (!parent->beaconSeen || !parent->associationPermit)
+                Serial.printf("[Join] 0x%04X not confirmed open for joining - trying anyway\n", addr);
+        } else {
+            uint32_t newest = 0;
+            for (int i = 0; i < sniffer.hosts.size(); i++) {
+                HostRecord *h = sniffer.hosts.get(i);
+                if (h->beaconSeen && h->associationPermit && h->lastSeen_ms >= newest) {
+                    newest = h->lastSeen_ms;
+                    parent = h;
+                }
+            }
+            if (!parent)
+                Serial.println("[Join] No host currently advertising association-permit");
+        }
+        if (parent) {
+            Serial.printf("[Join] Attempting join via 0x%04X (PAN 0x%04X)\n",
+                          parent->shortAddr, parent->panId);
+            joiner.start(parent->shortAddr, parent->panId);
+        }
     } else {
-        Serial.println("Commands: c<ch>  h(op)  k(eys)  l(ist)  p(cap)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
+        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
     }
 }
 
@@ -273,6 +307,9 @@ void setup() {
         if (keyCapture.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
             ledFlash(COL_WHITE, 500);
             Serial.println("[!] *** Network key captured! type \'k\' to view ***");
+        }
+        if (joiner.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
+            ledFlash(COL_CYAN, 500);
         }
     };
 
@@ -308,7 +345,7 @@ void setup() {
         sd.listFiles();
     }
 
-    Serial.println("Ready. Commands: c<ch>  h(op)  k(eys)  K(→SD)  l(ist)  p(cap)  W(rite)  F(iles)  s(tats)");
+    Serial.println("Ready. Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  W(rite)  F(iles)  s(tats)");
     show_header();
 }
 
@@ -318,5 +355,6 @@ void loop() {
     sniffer.update();
     handleSerial();
     keyCapture.expireJoins();
+    joiner.update();
     updateScan();
 }

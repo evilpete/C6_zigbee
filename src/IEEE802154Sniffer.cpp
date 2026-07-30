@@ -94,6 +94,14 @@ bool IEEE802154Sniffer::init(uint8_t channel) {
     esp_ieee802154_set_extended_address(eui64);
     esp_ieee802154_set_channel(_channel);
 
+    // esp_read_mac() returns canonical (printed) MSB-first byte order, matching
+    // how info.srcExtended/dstExtended print via %016llX elsewhere in this file.
+    // On-air extended addresses are little-endian, so TX frame builders below
+    // must emit byte i = (_ownEUI64 >> (8*i)) & 0xFF, mirroring how _decodeMac
+    // reconstructs srcExtended/dstExtended from wire bytes.
+    _ownEUI64 = 0;
+    for (int i = 0; i < 8; i++) _ownEUI64 = (_ownEUI64 << 8) | eui64[i];
+
     _initialised = true;
 
     // Load default Zigbee Trust Center Link Key "ZigBeeAlliance09"
@@ -998,10 +1006,33 @@ bool IEEE802154Sniffer::_tryExtractNetworkKey(const FrameInfo &info,
     return false;  // decryption not yet implemented - returns true when key extracted
 }
 
+// -- Raw TX helper ---------------------------------------------------------
+// Shared plumbing for injecting a raw MAC frame. Must stop RX before TX since
+// the radio is half-duplex; resumes RX immediately after.
+bool IEEE802154Sniffer::_transmitRaw(const uint8_t *frame, uint8_t frameLen) {
+    if (frameLen == 0 || frameLen > SNIFFER_MAX_FRAME_LEN - 3) return false;
+
+    // IDF transmit — prepend length byte (includes 2-byte FCS appended by radio)
+    uint8_t txBuf[SNIFFER_MAX_FRAME_LEN];
+    txBuf[0] = frameLen + 2;  // length = frame + FCS
+    memcpy(&txBuf[1], frame, frameLen);
+
+    esp_ieee802154_sleep();
+    esp_err_t err = esp_ieee802154_transmit(txBuf, false);
+    delay(5);
+    esp_ieee802154_receive();  // back to RX
+    _running = true;
+
+    if (err != ESP_OK) {
+        log_w("_transmitRaw: tx failed %d", err);
+        return false;
+    }
+    return true;
+}
+
 // -- Beacon Request TX ---------------------------------------------------------
 // Sends a MAC beacon request (Cmd 0x07) broadcast on the current channel.
 // Used for active scanning — solicits beacon responses from coordinators/routers.
-// Requires stop()/start() around TX since we're in RX mode.
 bool IEEE802154Sniffer::sendBeaconRequest() {
     // MAC Beacon Request frame (9 bytes):
     // FC(2) | Seq(1) | DST_PAN(2) | DST(2) | Cmd(1) = 0x07
@@ -1018,22 +1049,93 @@ bool IEEE802154Sniffer::sendBeaconRequest() {
     frame[6] = 0xFF;  // dst addr high
     frame[7] = 0x07;  // MAC Cmd: Beacon Request
 
-    // IDF transmit — prepend length byte (includes 2-byte FCS appended by radio)
-    uint8_t txBuf[10];
-    txBuf[0] = sizeof(frame) + 2;  // length = frame + FCS
-    memcpy(&txBuf[1], frame, sizeof(frame));
-
-    // Must stop RX before TX
-    esp_ieee802154_sleep();
-    esp_err_t err = esp_ieee802154_transmit(txBuf, false);
-    delay(5);
-    esp_ieee802154_receive();  // back to RX
-    _running = true;
-
-    if (err != ESP_OK) {
-        log_w("sendBeaconRequest: tx failed %d", err);
+    if (!_transmitRaw(frame, sizeof(frame))) {
+        log_w("sendBeaconRequest: tx failed");
         return false;
     }
     log_d("sendBeaconRequest: sent on ch %u", _channel);
+    return true;
+}
+
+// -- Association Request TX -----------------------------------------------------
+// Sends a MAC Association Request (Cmd 0x01) to a specific parent (coordinator
+// or router) that is advertising association-permit in its beacon. We have no
+// short address yet, so we address ourselves by our extended (EUI64) address
+// and use the "not yet associated" source PAN 0xFFFF, per 802.15.4 5.3.1.
+bool IEEE802154Sniffer::sendAssociationRequest(uint16_t dstPan, uint16_t dstShortAddr,
+                                                uint8_t capabilityInfo) {
+    static uint8_t seq = 0;
+
+    uint8_t frame[19];
+    frame[0] = 0x23;  // FC low: MAC cmd, ack request=1
+    frame[1] = 0xC8;  // FC high: dst addr mode=short(2<<2), src addr mode=extended(3<<6)
+    frame[2] = seq++;
+    frame[3] = (uint8_t)(dstPan & 0xFF);
+    frame[4] = (uint8_t)(dstPan >> 8);
+    frame[5] = (uint8_t)(dstShortAddr & 0xFF);
+    frame[6] = (uint8_t)(dstShortAddr >> 8);
+    frame[7] = 0xFF;  // src PAN low (0xFFFF = not associated)
+    frame[8] = 0xFF;  // src PAN high
+    for (int i = 0; i < 8; i++)
+        frame[9 + i] = (uint8_t)(_ownEUI64 >> (8 * i));  // src EUI64, wire order (LE)
+    frame[17] = MAC_CMD_ASSOC_REQUEST;
+    frame[18] = capabilityInfo;
+
+    if (!_transmitRaw(frame, sizeof(frame))) {
+        log_w("sendAssociationRequest: tx failed");
+        return false;
+    }
+    log_d("sendAssociationRequest: sent to pan=0x%04X addr=0x%04X cap=0x%02X",
+          dstPan, dstShortAddr, capabilityInfo);
+    return true;
+}
+
+// -- Data Request TX -------------------------------------------------------------
+// Polls a parent for a queued (indirect-transmission) frame, e.g. the pending
+// Association Response or Transport Key. Before association completes we have
+// no short address, so we must poll using our extended address (useOwnShortAddr
+// =false); afterwards use the short address the parent assigned to us.
+bool IEEE802154Sniffer::sendDataRequest(uint16_t dstPan, uint16_t dstShortAddr,
+                                         bool useOwnShortAddr, uint16_t ownShortAddr) {
+    static uint8_t seq = 0;
+    uint8_t frame[18];
+    uint8_t len;
+
+    if (useOwnShortAddr) {
+        // PAN ID compressed (src PAN == dst PAN), short/short addressing.
+        frame[0] = 0x63;  // FC low: MAC cmd, ack request=1, PAN ID compression=1
+        frame[1] = 0x88;  // FC high: dst addr mode=short(2<<2), src addr mode=short(2<<6)
+        frame[2] = seq++;
+        frame[3] = (uint8_t)(dstPan & 0xFF);
+        frame[4] = (uint8_t)(dstPan >> 8);
+        frame[5] = (uint8_t)(dstShortAddr & 0xFF);
+        frame[6] = (uint8_t)(dstShortAddr >> 8);
+        frame[7] = (uint8_t)(ownShortAddr & 0xFF);
+        frame[8] = (uint8_t)(ownShortAddr >> 8);
+        frame[9] = MAC_CMD_DATA_REQUEST;
+        len = 10;
+    } else {
+        // Not associated yet: short/extended addressing, src PAN 0xFFFF.
+        frame[0] = 0x23;  // FC low: MAC cmd, ack request=1
+        frame[1] = 0xC8;  // FC high: dst addr mode=short(2<<2), src addr mode=extended(3<<6)
+        frame[2] = seq++;
+        frame[3] = (uint8_t)(dstPan & 0xFF);
+        frame[4] = (uint8_t)(dstPan >> 8);
+        frame[5] = (uint8_t)(dstShortAddr & 0xFF);
+        frame[6] = (uint8_t)(dstShortAddr >> 8);
+        frame[7] = 0xFF;
+        frame[8] = 0xFF;
+        for (int i = 0; i < 8; i++)
+            frame[9 + i] = (uint8_t)(_ownEUI64 >> (8 * i));
+        frame[17] = MAC_CMD_DATA_REQUEST;
+        len = 18;
+    }
+
+    if (!_transmitRaw(frame, len)) {
+        log_w("sendDataRequest: tx failed");
+        return false;
+    }
+    log_d("sendDataRequest: polled pan=0x%04X addr=0x%04X (ownShort=%d)",
+          dstPan, dstShortAddr, useOwnShortAddr);
     return true;
 }
