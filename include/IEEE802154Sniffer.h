@@ -45,6 +45,7 @@
 
 #define ZB_NWK_TYPE_DATA            0x00
 #define ZB_NWK_TYPE_CMD             0x01
+#define ZB_NWK_FC_SECURITY          (1 << 9)
 #define ZB_NWK_FC_SOURCE_ROUTE      (1 << 10)
 #define ZB_NWK_FC_EXT_SRC           (1 << 11)
 #define ZB_NWK_FC_EXT_DST           (1 << 12)
@@ -244,6 +245,11 @@ public:
     bool    sendDataRequest(uint16_t dstPan, uint16_t dstShortAddr,
                              bool useOwnShortAddr, uint16_t ownShortAddr = 0xFFFE);
 
+    // Generic raw-MAC-frame transmit, for higher layers (e.g. ZbPing) that
+    // build their own complete NWK/APS frames. Handles the stop-RX/TX/resume-RX
+    // plumbing; caller supplies the full frame, FCS is appended by the radio.
+    bool    sendRawFrame(const uint8_t *frame, uint8_t frameLen);
+
     void    startPcap(Stream *out);
     void    stopPcap();
     bool    isPcapActive() const { return _pcapOut != nullptr; }
@@ -260,6 +266,7 @@ public:
                        uint8_t seqNum = 0, const char *label = nullptr);
     void        printKeys();
     ZbKey      *findNetworkKey(uint8_t seqNum);
+    ZbKey      *findLatestNetworkKey();  // most recently captured/added NETWORK key
     bool        hasNetworkKey();
 
     uint32_t getFrameCount()   const { return _frameCount; }
@@ -297,7 +304,6 @@ private:
 
     static QueueHandle_t _rxQueue;
 
-    bool  _transmitRaw(const uint8_t *frame, uint8_t frameLen);
     bool  _decodeMac(const SnifferFrame &raw, FrameInfo &info);
     bool  _decodeZigbeeNwk(const uint8_t *p, uint8_t len, FrameInfo &info);
     bool  _decodeThreadMesh(const uint8_t *p, uint8_t len, FrameInfo &info);

@@ -17,6 +17,8 @@
  *   j       Print join status
  *   J[addr] Join network as a plain end device (auto-picks an open host if
  *           addr omitted, e.g. J04A7 to target a specific host)
+ *   P<addr> Ping a host (ZDO Node Descriptor request) - requires a join and
+ *           a captured network key. P alone sweeps every known host.
  */
 
 #include "USB.h"
@@ -27,6 +29,7 @@
 #include "SnifferSD.h"
 #include "ZbKeyCapture.h"
 #include "ZbJoiner.h"
+#include "ZbPing.h"
 
 
 // -- Known device labels -------------------------------------------------------
@@ -43,6 +46,7 @@ IEEE802154Sniffer sniffer;
 SnifferSD         sd;
 ZbKeyCapture      keyCapture(sniffer);
 ZbJoiner          joiner(sniffer);
+ZbPing            zping(sniffer, joiner);
 static bool hopping = false;
 static bool scanning = false;
 static uint8_t scanChannel = 0;
@@ -272,8 +276,31 @@ void handleSerial() {
                           parent->shortAddr, parent->panId);
             joiner.start(parent->shortAddr, parent->panId);
         }
+    } else if (cmd[0] == 'P' && cmd.length() > 1) {
+        // P<addr> - ping a specific host (hex short addr, e.g. P0106)
+        uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+        HostRecord *h = sniffer.findHost(addr);
+        if (!h)
+            Serial.printf("[Ping] Unknown host 0x%04X - use 'l' to list hosts\n", addr);
+        else
+            zping.ping(h->shortAddr, h->panId);
+    } else if (cmd == "P") {
+        // P (no addr) - sweep every known host
+        if (!joiner.isAssociated()) {
+            Serial.println("[Ping] Not associated - run 'J' to join the network first");
+        } else if (!sniffer.findLatestNetworkKey()) {
+            Serial.println("[Ping] No network key captured yet - can't encrypt ping");
+        } else {
+            int sent = 0;
+            for (int i = 0; i < sniffer.hosts.size(); i++) {
+                HostRecord *h = sniffer.hosts.get(i);
+                if (h->shortAddr == 0xFFFE || h->shortAddr == 0xFFFF) continue;
+                if (zping.ping(h->shortAddr, h->panId)) sent++;
+            }
+            Serial.printf("[Ping] Sweep sent to %d host(s)\n", sent);
+        }
     } else {
-        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
+        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
     }
 }
 
@@ -311,6 +338,9 @@ void setup() {
         if (joiner.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
             ledFlash(COL_CYAN, 500);
         }
+        if (zping.processFrame(info, rawFrame, rawLen, macPayloadOffset)) {
+            ledFlash(COL_CYAN, 150);
+        }
     };
 
     Serial.printf("Show %s bcast\n", sniffer.no_bcast ? "No" : "" );
@@ -345,7 +375,7 @@ void setup() {
         sd.listFiles();
     }
 
-    Serial.println("Ready. Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  W(rite)  F(iles)  s(tats)");
+    Serial.println("Ready. Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  P[addr](ing)  W(rite)  F(iles)  s(tats)");
     show_header();
 }
 
@@ -356,5 +386,6 @@ void loop() {
     handleSerial();
     keyCapture.expireJoins();
     joiner.update();
+    zping.update();
     updateScan();
 }

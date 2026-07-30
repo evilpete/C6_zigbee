@@ -420,7 +420,11 @@ bool IEEE802154Sniffer::_decodeZigbeeNwk(const uint8_t *p, uint8_t len,
 
     // Extra NWK fields from frame control
     info.zbNwkProtoVersion    = (nwkFc >> 2) & 0x0F;   // bits[5:2]
-    info.zbNwkSecurityEnabled = (nwkFc >> 1) & 0x01;   // bit1 - NWK layer security
+    // bit9 = NWK layer security (spec 3.3.1.1 / matches Wireshark zbee_nwk).
+    // Previously read from bit1, which lives inside the 2-bit frame-type field
+    // (bits0-1) and is therefore always 0 for Data/Command frames - this made
+    // zbNwkSecurityEnabled permanently false for essentially all real traffic.
+    info.zbNwkSecurityEnabled = (nwkFc & ZB_NWK_FC_SECURITY) != 0;
     info.zbIsMulticast        = (nwkFc >> 8) & 0x01;   // bit8 - multicast flag
     info.zbNwkRadius          = p[6];
 
@@ -922,6 +926,16 @@ ZbKey *IEEE802154Sniffer::findNetworkKey(uint8_t seqNum) {
     return nullptr;
 }
 
+ZbKey *IEEE802154Sniffer::findLatestNetworkKey() {
+    ZbKey *latest = nullptr;
+    for (int i = 0; i < keys.size(); i++) {
+        ZbKey *k = keys.get(i);
+        if (k->type != ZbKeyType::NETWORK) continue;
+        if (!latest || k->capturedAt_ms >= latest->capturedAt_ms) latest = k;
+    }
+    return latest;
+}
+
 bool IEEE802154Sniffer::hasNetworkKey() {
     for (int i = 0; i < keys.size(); i++) {
         if (keys.get(i)->type == ZbKeyType::NETWORK) return true;
@@ -1009,7 +1023,7 @@ bool IEEE802154Sniffer::_tryExtractNetworkKey(const FrameInfo &info,
 // -- Raw TX helper ---------------------------------------------------------
 // Shared plumbing for injecting a raw MAC frame. Must stop RX before TX since
 // the radio is half-duplex; resumes RX immediately after.
-bool IEEE802154Sniffer::_transmitRaw(const uint8_t *frame, uint8_t frameLen) {
+bool IEEE802154Sniffer::sendRawFrame(const uint8_t *frame, uint8_t frameLen) {
     if (frameLen == 0 || frameLen > SNIFFER_MAX_FRAME_LEN - 3) return false;
 
     // IDF transmit — prepend length byte (includes 2-byte FCS appended by radio)
@@ -1024,7 +1038,7 @@ bool IEEE802154Sniffer::_transmitRaw(const uint8_t *frame, uint8_t frameLen) {
     _running = true;
 
     if (err != ESP_OK) {
-        log_w("_transmitRaw: tx failed %d", err);
+        log_w("sendRawFrame: tx failed %d", err);
         return false;
     }
     return true;
@@ -1049,7 +1063,7 @@ bool IEEE802154Sniffer::sendBeaconRequest() {
     frame[6] = 0xFF;  // dst addr high
     frame[7] = 0x07;  // MAC Cmd: Beacon Request
 
-    if (!_transmitRaw(frame, sizeof(frame))) {
+    if (!sendRawFrame(frame, sizeof(frame))) {
         log_w("sendBeaconRequest: tx failed");
         return false;
     }
@@ -1081,7 +1095,7 @@ bool IEEE802154Sniffer::sendAssociationRequest(uint16_t dstPan, uint16_t dstShor
     frame[17] = MAC_CMD_ASSOC_REQUEST;
     frame[18] = capabilityInfo;
 
-    if (!_transmitRaw(frame, sizeof(frame))) {
+    if (!sendRawFrame(frame, sizeof(frame))) {
         log_w("sendAssociationRequest: tx failed");
         return false;
     }
@@ -1131,7 +1145,7 @@ bool IEEE802154Sniffer::sendDataRequest(uint16_t dstPan, uint16_t dstShortAddr,
         len = 18;
     }
 
-    if (!_transmitRaw(frame, len)) {
+    if (!sendRawFrame(frame, len)) {
         log_w("sendDataRequest: tx failed");
         return false;
     }
