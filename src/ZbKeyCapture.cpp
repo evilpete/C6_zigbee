@@ -57,8 +57,14 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
       info.frameType == FC_FRAME_TYPE_DATA) {
       Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
                     info.route.nwkDst, info.route.nwkSrc, is_bcast(info.route.nwkDst));
-      if (!is_bcast(info.route.nwkDst))
-          return _handleTransportKey(info, rawPayload, rawLen);
+      // _handleTransportKey/_skipNwkHeader expect nwkPayload[0] to be the NWK
+      // FC byte - rawPayload is the full raw frame from the MAC header, so it
+      // must be sliced at macPayloadOffset first. Previously passed through
+      // unsliced, so every NWK-header walk here started at the MAC FC byte
+      // instead - this was the actual reason Transport Key was never parsed.
+      if (!is_bcast(info.route.nwkDst) && macPayloadOffset < rawLen)
+          return _handleTransportKey(info, rawPayload + macPayloadOffset,
+                                      rawLen - macPayloadOffset);
   }
 
     return false;
@@ -234,7 +240,7 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
 
         uint8_t auxSecCtrl = nwkPayload[auxOff];
         uint8_t secLevel   = auxSecCtrl & 0x07;
-        bool    hasExtSrc  = (auxSecCtrl >> 6) & 0x01;
+        bool    hasExtSrc  = (auxSecCtrl >> 5) & 0x01;  // spec bit5, see note above
         uint8_t auxLen     = 6; // secCtrl(1)+fc(4)+keySeq(1)
         if (hasExtSrc) auxLen += 8;
 
@@ -296,13 +302,18 @@ bool ZbKeyCapture::_skipNwkHeader(const uint8_t *p, uint8_t len,
     }
 
     // NWK AUX security header (if NWK security bit set) - skip it entirely
-    // to reach the APS layer
-    bool nwkSecured = (nwkFc >> 1) & 0x01;
+    // to reach the APS layer.
+    // bit9 = NWK security (spec 3.3.1.1) - previously read from bit1, which is
+    // part of the 2-bit frame-type field and therefore always 0 for Data/Command
+    // frames, so this never detected real NWK security.
+    bool nwkSecured = (nwkFc & ZB_NWK_FC_SECURITY) != 0;
     if (nwkSecured) {
         // AUX: secCtrl(1)+fc(4)+[extSrc(8)]+keySeq(1)
         if (off + 6 > len) return false;
         uint8_t auxSecCtrl = p[off];
-        bool hasExtSrc = (auxSecCtrl >> 6) & 0x01;
+        // bit5 = Extended Nonce (spec 4.5.1.1) - previously bit6, which is
+        // reserved and always 0, so an embedded extSrc was never detected.
+        bool hasExtSrc = (auxSecCtrl >> 5) & 0x01;
         off += 6;
         if (hasExtSrc) { if (off + 8 > len) return false; off += 8; }
     }
@@ -345,7 +356,22 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     uint32_t frameCounter = (uint32_t)aux[1] | ((uint32_t)aux[2] << 8) |
                              ((uint32_t)aux[3] << 16) | ((uint32_t)aux[4] << 24);
     uint8_t  secLevel    = secCtrl & 0x07;
-    bool     hasExtSrc   = (secCtrl >> 6) & 0x01;
+    // bit5 = Extended Nonce (spec 4.5.1.1) - previously bit6, which is
+    // reserved and always 0, so an embedded extSrc was never detected and
+    // auxOff (hence encStart/ciphertext/MIC boundaries) came out 8 bytes
+    // short whenever the sender actually included one.
+    bool     hasExtSrc   = (secCtrl >> 5) & 0x01;
+
+    // MIC length depends on secLevel, not a fixed 4 bytes: 0/4/8/16 for
+    // secLevel&0x03 == 0/1/2/3 respectively (ZB_MIC_LEN was only correct
+    // for MIC-32; eISY has been observed using MIC-64 too, see notes).
+    uint8_t micLen;
+    switch (secLevel & 0x03) {
+        case 0:  micLen = 0;  break;
+        case 1:  micLen = 4;  break;
+        case 2:  micLen = 8;  break;
+        default: micLen = 16; break;
+    }
 
     uint8_t auxOff = 5; // past secCtrl + frameCounter
     uint8_t srcEui64[8] = {};
@@ -368,17 +394,17 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     auxOff++; // skip keySeq
 
     uint8_t encStart = auxStart + auxOff;
-    if (encStart + ZB_MIC_LEN >= nwkLen) return false;
-    uint8_t encLen = nwkLen - encStart - ZB_MIC_LEN;
+    if (encStart + micLen >= nwkLen) return false;
+    uint8_t encLen = nwkLen - encStart - micLen;
 
     const uint8_t *ciphertext = &nwkPayload[encStart];
-    const uint8_t *mic        = &nwkPayload[nwkLen - ZB_MIC_LEN];
+    const uint8_t *mic        = &nwkPayload[nwkLen - micLen];
 
 
   // If no encryption bit set, payload is plaintext — copy from APS FC onwards
   // _parseTransportKey expects aps[0] = APS FC byte, so start at apsOffset not encStart
   if ((secLevel & 0x04) == 0) {
-      uint8_t payloadLen = nwkLen - apsOffset - ZB_MIC_LEN;
+      uint8_t payloadLen = nwkLen - apsOffset - micLen;
       Serial.printf("[KC] secLevel=%u plaintext path, payloadLen=%u\n", secLevel, payloadLen);
       if (payloadLen == 0 || payloadLen > 95) return false;
       memcpy(plaintextOut, &nwkPayload[apsOffset], payloadLen);
@@ -409,7 +435,7 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
 
     bool ok = _ccmDecrypt(key, nonce, aad, aadLen,
                            ciphertext, encLen,
-                           plaintextOut, mic, ZB_MIC_LEN);
+                           plaintextOut, mic, micLen);
     if (ok) plaintextLen = encLen;
     return ok;
 }

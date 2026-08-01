@@ -37,14 +37,60 @@ pio run -t upload -t monitor
 | `s`     | Print stats |
 | `r`     | Reset stats |
 | `k`     | Print captured crypto keys |
+| `K`     | Save captured keys to SD |
 | `p`     | Start/Stop saving Pcap file to SD card |
 | `S`     | Scan all channels with a "Beacon Request"|
 | `H`     | (re)print column header
 | `U`     | Show or hide duplicate host in scan output
 | `B`     | Show or hide Broadcast packets in scan output
-
+| `V`     | Toggle verbose `[KC]`/debug logging
+| `l`     | List known hosts |
+| `W`     | Save known hosts to SD |
+| `F`     | List files on SD |
+| `t<addr>,<type>,<label>` | Label a host, e.g. `t04A7,R,Ikea Repeater` |
+| `j`     | Print join status |
+| `J[addr]` | Join the network as a plain end device (ZbJoiner). Auto-picks the most recently seen host advertising association-permit if `addr` is omitted, e.g. `J04A7` to target a specific host. Requires an open network. |
+| `P[addr]` | Ping a host via ZDO Node Descriptor request (ZbPing). `P` alone sweeps every known host. Requires a successful `J` join **and** a captured network key — see below. |
 
 reads /labels.csv if SD (if exists) for device names
+
+## Active probing (join / ping)
+
+Beyond passive sniffing, the firmware can act as a (non-functional) network
+member to actively probe the mesh:
+
+1. **`J[addr]`** — sends a real MAC Association Request and polls the parent
+   (coordinator or router) for the resulting Association Response, the same
+   way a battery-powered end device joins. On success it reports the
+   assigned short address; the Trust Center's follow-up Transport Key
+   exchange is then captured automatically and passively (see below).
+2. **`P[addr]`** — once joined and holding a network key, sends a ZDO
+   Node Descriptor request/response ("ping", since Zigbee has no ICMP
+   equivalent) to a specific host, or `P` to sweep every known host.
+   Reports RTT and flags whether the responding device's descriptor is
+   new or has changed since the last sighting.
+
+Both require a captured/known **network key** to build valid NWK-layer
+frames — either the well-known default keys loaded at boot, or one
+captured live via `k`/`K` after a join sequence completes.
+
+## Known bugs fixed
+
+- **Transport Key never decrypted** (root cause): `ZbKeyCapture::processFrame`
+  passed the *full* raw frame (from the MAC header) into the NWK-header
+  parser instead of slicing it at `macPayloadOffset` first, so every offset
+  computed downstream (AUX header, APS layer, ciphertext) started from the
+  wrong byte. Fixed.
+- **NWK/APS security-bit misreads**: `zbNwkSecurityEnabled` was read from
+  bit1 of the NWK frame-control field (part of the 2-bit frame-type field,
+  always 0 for Data/Command frames) instead of the spec-correct bit9, so it
+  was permanently `false` for real traffic. The AUX header's `hasExtSrc`
+  flag was similarly read from the reserved bit6 instead of the
+  spec-correct bit5. Both fixed in `IEEE802154Sniffer.cpp` and
+  `ZbKeyCapture.cpp`.
+- **Hardcoded MIC length**: `_decryptApsPayload` assumed a fixed 4-byte MIC;
+  the field notes recorded eISY using MIC-64 (8 bytes) as well. MIC length
+  is now derived from `secLevel` per frame.
 
 ## Channels
 
@@ -59,6 +105,10 @@ reads /labels.csv if SD (if exists) for device names
 - ~~[ ] PCap recording to SD card~~
 - [ ] ESP32-C5 support
 - [ ] Marauder v2/v3 integration
+- ~~[ ] Join network as a plain end device~~ (`J` command, `ZbJoiner`)
+- ~~[ ] Ping / reachability probe for Zigbee devices~~ (`P` command, `ZbPing`)
+- [ ] Assume/clone another device's MAC (EUI64) address, e.g. to test
+      gateways that allowlist rejoins by client MAC
 
 ## Architecture
 
@@ -71,4 +121,13 @@ _decodeMac() → _decodeZigbee() / _isThread()
     ↓
 _printFrame() → Serial
 onFrame()     → TFT (future)
+onKeyCapture() → ZbKeyCapture (passive Transport Key capture)
+              → ZbJoiner      (active join state machine, 'J')
+              → ZbPing        (active ZDO ping, 'P')
 ```
+
+Active TX (join requests, data polls, encrypted ping frames) shares the
+radio's stop-RX/transmit/resume-RX plumbing via
+`IEEE802154Sniffer::sendRawFrame()`; each higher-layer class builds its own
+complete frame bytes (MAC header + whatever NWK/APS layers it needs) and
+hands them to that one primitive.
