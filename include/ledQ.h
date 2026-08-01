@@ -19,6 +19,7 @@
 
 // Colours
 #define COL_BLUE    0x000050
+#define COL_CYAN    0x005050
 #define COL_GREEN   0x005000
 #define COL_OFF     0x000000
 #define COL_PURPLE  0x3C0050

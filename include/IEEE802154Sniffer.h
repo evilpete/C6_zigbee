@@ -27,11 +27,38 @@
 #define ADDR_MODE_SHORT             0x02
 #define ADDR_MODE_EXTENDED          0x03
 
+#define MAC_CMD_ASSOC_REQUEST       0x01
+#define MAC_CMD_ASSOC_RESPONSE      0x02
+#define MAC_CMD_DATA_REQUEST        0x04
+
+// Association Request capability info bits (802.15.4 5.3.1)
+#define ASSOC_CAP_ALT_PAN_COORD     0x01
+#define ASSOC_CAP_FFD               0x02  // 0 = RFD (simple/end device)
+#define ASSOC_CAP_MAINS_POWER       0x04  // 0 = battery powered
+#define ASSOC_CAP_RX_ON_IDLE        0x08  // 0 = sleepy, must poll for data
+#define ASSOC_CAP_SECURITY          0x40
+#define ASSOC_CAP_ALLOC_ADDR        0x80  // request a short address be assigned
+
+// Simple/plain end device: RFD, battery, sleepy, no security capability,
+// request a short address — advertises no active functionality.
+#define ASSOC_CAP_SIMPLE_DEVICE     (ASSOC_CAP_ALLOC_ADDR)
+
 #define ZB_NWK_TYPE_DATA            0x00
 #define ZB_NWK_TYPE_CMD             0x01
+#define ZB_NWK_FC_SECURITY          (1 << 9)
 #define ZB_NWK_FC_SOURCE_ROUTE      (1 << 10)
 #define ZB_NWK_FC_EXT_SRC           (1 << 11)
 #define ZB_NWK_FC_EXT_DST           (1 << 12)
+
+#define BRT    "\033[1m"
+#define RED    "\033[31m"
+#define GRN    "\033[32m"
+#define YEL    "\033[33m"
+#define BLU    "\033[34m"
+#define MAG    "\033[35m"
+#define CYAN   "\033[36m"
+#define ENDC   "\033[0m"
+
 
 inline bool is_bcast(uint16_t addr) {
     return (addr == 0xFFFF || addr == 0xFFFE || addr == 0xFFFB ||
@@ -218,6 +245,21 @@ public:
     // Beacon request TX — for active channel scanning
     bool    sendBeaconRequest();
 
+    // Join TX — for associating with an open network as a plain end device
+    uint64_t getOwnEUI64() const { return _ownEUI64; }
+    bool    sendAssociationRequest(uint16_t dstPan, uint16_t dstShortAddr,
+                                    uint8_t capabilityInfo = ASSOC_CAP_SIMPLE_DEVICE);
+    // Poll parent for a queued (indirect) frame. Before association completes
+    // we have no short address yet, so poll using our extended address;
+    // afterwards pass useOwnShortAddr=true with the address the parent assigned.
+    bool    sendDataRequest(uint16_t dstPan, uint16_t dstShortAddr,
+                             bool useOwnShortAddr, uint16_t ownShortAddr = 0xFFFE);
+
+    // Generic raw-MAC-frame transmit, for higher layers (e.g. ZbPing) that
+    // build their own complete NWK/APS frames. Handles the stop-RX/TX/resume-RX
+    // plumbing; caller supplies the full frame, FCS is appended by the radio.
+    bool    sendRawFrame(const uint8_t *frame, uint8_t frameLen);
+
     void    startPcap(Stream *out);
     void    stopPcap();
     bool    isPcapActive() const { return _pcapOut != nullptr; }
@@ -234,6 +276,7 @@ public:
                        uint8_t seqNum = 0, const char *label = nullptr);
     void        printKeys();
     ZbKey      *findNetworkKey(uint8_t seqNum);
+    ZbKey      *findLatestNetworkKey();  // most recently captured/added NETWORK key
     bool        hasNetworkKey();
 
     uint32_t getFrameCount()   const { return _frameCount; }
@@ -267,6 +310,7 @@ private:
     uint8_t  _hopIdx;
     uint32_t _frameCount, _zbCount, _threadCount, _dropped;
     Stream  *_pcapOut;
+    uint64_t _ownEUI64 = 0;
 
     static QueueHandle_t _rxQueue;
 
