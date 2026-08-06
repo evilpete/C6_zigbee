@@ -16,6 +16,8 @@ extern "C" {
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
+extern bool useColor;
+
 // -- Weak symbol callbacks -----------------------------------------------------
 extern "C" void esp_ieee802154_receive_done(uint8_t *frame,
                                              esp_ieee802154_frame_info_t *fi) {
@@ -816,6 +818,11 @@ void IEEE802154Sniffer::printHosts() {
     Serial.println("------------------------------------------------------------------------\n");
 }
 
+//  [26] Zigbee    MAC:0xADB9    →Hub         NWK:Soil_Mon_6→Hub         Data        RSSI:-36 LQI: 10   51B
+//  [26] Zigbee    MAC:C_Bulb1   →BCAST       NWK:C_Bulb1   →ROUTERS     NWK Cmd     RSSI:-62 LQI: 10   60B
+//  [26] MAC Cmd   Soil_Mon_6  →C_Bulb_2      PAN:6A58  Data Request  RSSI:-83 LQI: 10   10B
+//  [26] MAC Cmd   Soil_Mon_6  →C_Bulb_2      PAN:6A58  Data Request  RSSI:-83 LQI: 10   10B
+
 // -- Serial output -------------------------------------------------------------
 void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     char srcBuf[SNIFFER_MAX_LABEL_LEN + 4];
@@ -829,18 +836,20 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
     if (!info.hasRoute || (info.route.nwkSrc == info.macSrc &&
                             info.route.nwkDst == info.macDst &&
                             info.route.hopCount == 0)) {
-        Serial.printf("%s[%02u] %-8s  %-12s→%-12s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB%s\n",
-            GRN,
+
+        if (useColor) Serial.print(GRN);
+        Serial.printf("[%02u] %-8s  %-14s→%-10s  PAN:%04X  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.channel, info.protocolName,
             srcBuf, dstBuf, info.panId,
             info.functionName ? info.functionName : "",
-            info.rssi, info.lqi, info.len, ENDC);
+            info.rssi, info.lqi, info.len);
+        if (useColor) Serial.print(ENDC);
     } else {
         addrLabel(info.route.nwkSrc, nwkSrcBuf, sizeof(nwkSrcBuf));
         addrLabel(info.route.nwkDst, nwkDstBuf, sizeof(nwkDstBuf));
 
-        Serial.printf("%s[%02u] %-8s  MAC:%-10s→%-10s  NWK:%-10s→%-10s",
-            GRN,
+        if (useColor) Serial.print(GRN);
+        Serial.printf("[%02u] %-8s  MAC:%-10s→%-10s  NWK:%-10s→%-10s",
             info.channel, info.protocolName,
             srcBuf, dstBuf, nwkSrcBuf, nwkDstBuf);
 
@@ -855,9 +864,10 @@ void IEEE802154Sniffer::_printFrame(const FrameInfo &info) {
             Serial.printf("→%s]", nwkDstBuf);
         }
 
-        Serial.printf("  %-10s  RSSI:%3d LQI:%3u  %3uB%s\n",
+        Serial.printf("  %-10s  RSSI:%3d LQI:%3u  %3uB\n",
             info.functionName ? info.functionName : "",
-            info.rssi, info.lqi, info.len, ENDC);
+            info.rssi, info.lqi, info.len);
+        if (useColor) Serial.print(ENDC);
     }
 }
 

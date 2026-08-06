@@ -19,6 +19,7 @@
 #include "mbedtls/ccm.h"
 
 extern uint8_t Verbose;
+extern bool useColor;
 
 // -- Decode helpers -----------------------------------------------------------
 
@@ -91,9 +92,12 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
 
     if (info.frameType == FC_FRAME_TYPE_MAC_CMD) {
         uint8_t cmdId = (macPayloadOffset < rawLen) ? rawPayload[macPayloadOffset] : 0xFF;
-        if (Verbose)
+        if (Verbose) {
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] MAC CMD rawLen=%u offset=%u cmd=0x%02X(%s) macSrc=0x%04X\n",
                           rawLen, macPayloadOffset, cmdId, _macCmdName(cmdId), info.macSrc);
+            if (useColor) Serial.print(ENDC);
+            }
         if (cmdId == 0x02)
             _handleAssocResponse(info);
         return false;
@@ -102,8 +106,13 @@ bool ZbKeyCapture::processFrame(const FrameInfo &info,
 
   if (info.protocol == FrameProtocol::ZIGBEE &&
       info.frameType == FC_FRAME_TYPE_DATA) {
-      Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
+      if (Verbose) {
+        if (useColor) Serial.print(YEL);
+        Serial.printf("[KC] data frame nwkDst=0x%04X nwkSrc=0x%04X bcast=%d\n",
                     info.route.nwkDst, info.route.nwkSrc, is_bcast(info.route.nwkDst));
+        if (useColor) Serial.print(ENDC);
+      }
+
       // _handleTransportKey/_skipNwkHeader expect nwkPayload[0] to be the NWK
       // FC byte - rawPayload is the full raw frame from the MAC header, so it
       // must be sliced at macPayloadOffset first. Previously passed through
@@ -218,7 +227,7 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     bool    apsSecured   = (apsFc >> 5) & 0x01;
 
     if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[KC] Transport Key candidate: nwkLen=%u nwkSrc=0x%04X dst=0x%04X\n",
                       nwkLen, info.route.nwkSrc, info.route.nwkDst);
         Serial.printf("[KC] NWK: ");
@@ -228,16 +237,16 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
                       apsOffset, apsFc,
                       _apsFrameTypeName(apsFrameType), apsFrameType,
                       apsSecured ? "YES" : "NO");
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
     }
 
     // We expect APS command frame (type=1)
     if (apsFrameType != 0x01) {
         if (Verbose) {
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] skip: apsFrameType=%s(%u) (not APS cmd)\n",
                           _apsFrameTypeName(apsFrameType), apsFrameType);
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
         return false;
     }
 
@@ -249,10 +258,10 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
     }
 
     if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[KC] apsSecured=%s coordEUI64=%016llX\n",
                       apsSecured ? "YES" : "NO", coordEUI64);
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
     }
 
     if (apsSecured) {
@@ -265,12 +274,12 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
             uint8_t plaintextLen  = 0;
 
             if (Verbose) {
-                Serial.print(YEL);
+                if (useColor) Serial.print(YEL);
                 Serial.printf("[KC] coordEUI64=%016llX\n", coordEUI64);
                 uint8_t *eu = (uint8_t*)&coordEUI64;
                 Serial.printf("[KC] EUI64 bytes: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\n",
                     eu[0],eu[1],eu[2],eu[3],eu[4],eu[5],eu[6],eu[7]);
-                Serial.print(ENDC);
+                if (useColor) Serial.print(ENDC);
             }
 
             bool ok = _decryptApsPayload(nwkPayload, nwkLen, apsOffset,
@@ -315,10 +324,10 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
 
         uint8_t apsPayloadOff = apsOffset + 1 + auxLen; // APS cmd byte (after AUX)
         if (Verbose) {
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] secLevel=%s(%u) plaintext APS, apsPayloadOff=%u\n",
                           _secLevelName(secLevel), secLevel, apsPayloadOff);
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
         }
 
         if (apsPayloadOff + 1 >= nwkLen) return false;
@@ -326,10 +335,10 @@ bool ZbKeyCapture::_handleTransportKey(const FrameInfo &info,
         // Peek at the APS command ID for verbose logging
         uint8_t apsCmdId = nwkPayload[apsPayloadOff];
         if (Verbose)
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] APS cmd=0x%02X %s\n",
                           apsCmdId, _apsCommandName(apsCmdId));
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
         }
 
         uint8_t networkKey[ZIGBEE_KEY_LEN] = {};
@@ -470,11 +479,11 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
 
 
     if (Verbose) {
-      Serial.print(YEL);
+      if (useColor) Serial.print(YEL);
       Serial.printf("    SecLev=%s(%u) hasExtSrc=%s fc=%08lX\n",
                     _secLevelName(secLevel), secLevel,
                     hasExtSrc ? "YES" : "NO", frameCounter);
-      Serial.print(ENDC);
+      if (useColor) Serial.print(ENDC);
     }
 
     if (hasExtSrc) {
@@ -502,9 +511,9 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
   if ((secLevel & 0x04) == 0) {
       uint8_t payloadLen = nwkLen - apsOffset - micLen;
       if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[KC] secLevel=%u plaintext path, payloadLen=%u\n", secLevel, payloadLen);
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
         }
       if (payloadLen == 0 || payloadLen > 95) return false;
       memcpy(plaintextOut, &nwkPayload[apsOffset], payloadLen);
@@ -527,12 +536,12 @@ bool ZbKeyCapture::_decryptApsPayload(const uint8_t *nwkPayload, uint8_t nwkLen,
     uint8_t        aadLen = encStart;
 
     if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[KC] nonce: ");
         for (int i = 0; i < 13; i++) Serial.printf("%02X", nonce[i]);
         Serial.printf(" fc=%08lX sc=%02X\n", frameCounter, secCtrl);
         Serial.printf("[KC] encStart=%u encLen=%u aadLen=%u\n", encStart, encLen, aadLen);
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
     }
 
     if (encLen == 0 || encLen > 95) return false;
@@ -583,10 +592,10 @@ bool ZbKeyCapture::_parseTransportKey(const uint8_t *aps, uint8_t apsLen,
     // APS command frame (type = 0x01)
     if (apsFrameType != 0x01) {
         if (Verbose) {
-          Serial.print(YEL);
+          if (useColor) Serial.print(YEL);
             Serial.printf("[KC] _parseTransportKey: not APS cmd, type=%s(%u)\n",
                           _apsFrameTypeName(apsFrameType), apsFrameType);
-          Serial.print(ENDC);
+          if (useColor) Serial.print(ENDC);
         }
         return false;
     }
@@ -607,10 +616,10 @@ bool ZbKeyCapture::_parseTransportKey(const uint8_t *aps, uint8_t apsLen,
     uint8_t cmdId = aps[cmdOff];
     if (cmdId != APS_CMD_TRANSPORT_KEY) {
         if (Verbose) {
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] _parseTransportKey: cmd=0x%02X %s (not Transport Key)\n",
                           cmdId, _apsCommandName(cmdId));
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
           }
         return false;
     }
@@ -622,10 +631,10 @@ bool ZbKeyCapture::_parseTransportKey(const uint8_t *aps, uint8_t apsLen,
     uint8_t keyType = aps[payOff];
     if (keyType != APS_KEY_TYPE_NWK) {
         if (Verbose) {
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[KC] Transport Key type=%s(0x%02X) (not NWK)\n",
                           _apsKeyTypeName(keyType), keyType);
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
         }
         return false;
     }

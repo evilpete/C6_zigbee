@@ -40,6 +40,7 @@ static const char DEVICE_LABELS[] =
 
 
 uint8_t Verbose = 0;
+bool useColor = false;
 
 // -- Sniffer -------------------------------------------------------------------
 IEEE802154Sniffer sniffer;
@@ -182,6 +183,12 @@ void handleSerial() {
       else
         sniffer.no_duplicates = true;
       Serial.printf("Show %s duplicates\n", sniffer.no_duplicates ? "No" : "" );
+    } else if (cmd == "C") {
+      if (useColor)
+        useColor = false;
+      else
+        useColor = true;
+      Serial.printf("Use %s color\n", sniffer.no_duplicates ? "" : "No" );
 
     } else if (cmd == "h") {
         hopping = !hopping;
@@ -306,7 +313,11 @@ void handleSerial() {
             Serial.printf("[Ping] Sweep sent to %d host(s)\n", sent);
         }
     } else {
-        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
+
+        Serial.print("Unknown CMD:"); Serial.println(cmd);
+        Serial.printf("strlen = %d  %02x\n", cmd.length(), cmd[0]);
+        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)\n"
+        "P[addr](ing)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
     }
 }
 

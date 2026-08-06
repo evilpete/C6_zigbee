@@ -23,6 +23,7 @@ extern "C" {
 }
 
 extern uint8_t Verbose;
+extern bool useColor;
 
 ZbPing::ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner)
     : _sniffer(sniffer), _joiner(joiner)
@@ -68,11 +69,11 @@ bool ZbPing::ping(uint16_t targetShortAddr, uint16_t targetPan) {
     apsFrame[10] = (uint8_t)(targetShortAddr >> 8);
 
     if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[Ping] APS+ZDO plaintext: ");
         for (uint8_t b : apsFrame) Serial.printf("%02X ", b);
         Serial.println();
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
     }
 
     if (!_nwkEncryptAndSend(targetPan, targetShortAddr, apsFrame, sizeof(apsFrame)))
@@ -114,9 +115,9 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
     uint8_t plainLen = 0;
     if (!_nwkDecrypt(nwk, nwkLen, info.route.nwkSrc, plain, plainLen)) {
         if (Verbose) {
-            Serial.print(YEL);
+            if (useColor) Serial.print(YEL);
             Serial.printf("[Ping] Decrypt failed for response from 0x%04X\n", info.route.nwkSrc);
-            Serial.print(ENDC);
+            if (useColor) Serial.print(ENDC);
         }
         return false;
     }
@@ -399,11 +400,11 @@ bool ZbPing::_nwkEncryptAndSend(uint16_t dstPan, uint16_t dstShort,
     memcpy(&frame[off], tag, 4);              off += 4;
 
     if (Verbose) {
-        Serial.print(YEL);
+        if (useColor) Serial.print(YEL);
         Serial.printf("[Ping] TX nonce: ");
         for (int i = 0; i < 13; i++) Serial.printf("%02X", nonce[i]);
         Serial.printf(" fc=%08lX secCtrl=%02X\n", _nwkFrameCounter, aux[0]);
-        Serial.print(ENDC);
+        if (useColor) Serial.print(ENDC);
     }
 
     return _sniffer.sendRawFrame(frame, off);
