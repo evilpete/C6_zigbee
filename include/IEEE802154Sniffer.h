@@ -50,6 +50,16 @@
 #define ZB_NWK_FC_EXT_SRC           (1 << 11)
 #define ZB_NWK_FC_EXT_DST           (1 << 12)
 
+#define BRT    "\033[1m"
+#define RED    "\033[31m"
+#define GRN    "\033[32m"
+#define YEL    "\033[33m"
+#define BLU    "\033[34m"
+#define MAG    "\033[35m"
+#define CYAN   "\033[36m"
+#define ENDC   "\033[0m"
+
+
 inline bool is_bcast(uint16_t addr) {
     return (addr == 0xFFFF || addr == 0xFFFE || addr == 0xFFFB ||
             addr == 0xFFFC || addr == 0xFFFD);

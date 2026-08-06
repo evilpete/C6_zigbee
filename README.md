@@ -20,7 +20,7 @@ pio run -t upload -t monitor
 
 ```
 [CH] Protocol     Src          → Dst         PAN     Function          RSSI    Len
-─────────────────────────────────────────────────────────────────────────────────
+----------------------------------------------------------------------------------
 [15] Zigbee       0x1234       → 0x0000      PAN:1A2B  Route Request    -65 dBm   32 B
 [15] Thread       0x8F3A       → BCAST       PAN:4321  6LoWPAN          -72 dBm   48 B
 [15] 802.15.4     None         → 0xFFFF      PAN:FFFF  Beacon           -58 dBm   23 B
@@ -96,6 +96,7 @@ Ports of three attacks from Bishop Fox's [ZigDiggity](https://github.com/BishopF
   command's octet-string parameter (`O1A2E,1234`); most legacy locks accept the
   command with no PIN, which is exactly the weakness this demonstrates. **This
   physically opens the lock — run it only against your own lock.**
+
 
 ## Active probing (join / ping)
 

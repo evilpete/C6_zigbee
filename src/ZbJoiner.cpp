@@ -5,6 +5,7 @@
 #include "ZbJoiner.h"
 
 extern uint8_t Verbose;
+extern bool useColor;
 
 static const uint32_t JOIN_POLL_INTERVAL_MS = 300;
 static const uint32_t JOIN_TIMEOUT_MS       = 8000;
@@ -30,15 +31,19 @@ bool ZbJoiner::start(uint16_t parentShortAddr, uint16_t parentPan,
     _pollCount          = 0;
     _phase              = JoinPhase::WAIT_ASSOC_RESP;
 
+    if (useColor) Serial.print(CYAN);
     Serial.printf("[Join] Association Request sent to 0x%04X (PAN 0x%04X), "
                   "own EUI64=%016llX cap=0x%02X\n",
                   parentShortAddr, parentPan, _sniffer.getOwnEUI64(), capabilityInfo);
+    if (useColor) Serial.print(ENDC);
     return true;
 }
 
 void ZbJoiner::abort() {
     if (_phase == JoinPhase::WAIT_ASSOC_RESP) {
+        if (useColor) Serial.print(CYAN);
         Serial.println("[Join] Aborted by user");
+        if (useColor) Serial.print(ENDC);
         _phase = JoinPhase::IDLE;
     }
 }
@@ -48,8 +53,10 @@ void ZbJoiner::update() {
 
     uint32_t now = millis();
     if ((now - _startTime_ms) > JOIN_TIMEOUT_MS || _pollCount >= JOIN_MAX_POLLS) {
+        if (useColor) Serial.print(CYAN);
         Serial.printf("[Join] Timed out waiting for Association Response from 0x%04X\n",
                       _parentShort);
+        if (useColor) Serial.print(ENDC);
         _phase = JoinPhase::FAILED;
         return;
     }
@@ -58,9 +65,12 @@ void ZbJoiner::update() {
     _lastPoll_ms = now;
     _pollCount++;
 
-    if (Verbose)
+    if (Verbose) {
+        if (useColor) Serial.print(YEL);
         Serial.printf("[Join] Polling parent 0x%04X for pending response (attempt %u)\n",
                       _parentShort, _pollCount);
+        if (useColor) Serial.print(ENDC);
+    }
     _sniffer.sendDataRequest(_parentPan, _parentShort, false);
 }
 
@@ -85,14 +95,18 @@ bool ZbJoiner::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
     if (status == 0x00) {
         _assignedShortAddr = shortAddr;
         _phase = JoinPhase::ASSOCIATED;
+        if (useColor) Serial.print(CYAN);
         Serial.printf("[Join] *** Associated! Assigned short address 0x%04X via parent 0x%04X ***\n",
                       shortAddr, _parentShort);
         Serial.println("[Join] Waiting for Transport Key (captured automatically if seen) — "
                         "type 'k' to check.");
+        if (useColor) Serial.print(ENDC);
     } else {
         _phase = JoinPhase::FAILED;
+        if (useColor) Serial.print(CYAN);
         Serial.printf("[Join] Association rejected by 0x%04X: %s (0x%02X)\n",
                       _parentShort, _statusName(status), status);
+        if (useColor) Serial.print(ENDC);
     }
     return true;
 }
@@ -107,6 +121,7 @@ const char *ZbJoiner::_statusName(uint8_t status) {
 }
 
 void ZbJoiner::printStatus() const {
+    if (useColor) Serial.print(CYAN);
     switch (_phase) {
         case JoinPhase::IDLE:
             Serial.println("[Join] Idle — no join attempt in progress");
@@ -123,4 +138,5 @@ void ZbJoiner::printStatus() const {
             Serial.printf("[Join] Last attempt to 0x%04X failed/timed out\n", _parentShort);
             break;
     }
+    if (useColor) Serial.print(ENDC);
 }

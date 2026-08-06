@@ -52,6 +52,7 @@ static const char DEVICE_LABELS[] =
 
 
 uint8_t Verbose = 0;
+bool useColor = false;
 
 // -- Sniffer -------------------------------------------------------------------
 IEEE802154Sniffer sniffer;
@@ -178,7 +179,9 @@ void handleSerial() {
         Verbose = 0;
       else
         Verbose = 1;
+      Serial.print(YEL);
       Serial.printf("Verbose %s\n", Verbose ? "On" : "Off" );
+      Serial.print(ENDC);
 
     } else if (cmd == "B") {
       if (sniffer.no_bcast)
@@ -193,6 +196,12 @@ void handleSerial() {
       else
         sniffer.no_duplicates = true;
       Serial.printf("Show %s duplicates\n", sniffer.no_duplicates ? "No" : "" );
+    } else if (cmd == "C") {
+      if (useColor)
+        useColor = false;
+      else
+        useColor = true;
+      Serial.printf("Use %s color\n", sniffer.no_duplicates ? "" : "No" );
 
     } else if (cmd == "h") {
         hopping = !hopping;
