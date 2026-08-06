@@ -27,9 +27,15 @@ extern uint8_t Verbose;
 ZbPing::ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner)
     : _sniffer(sniffer), _joiner(joiner)
     , _nwkFrameCounter(0), _macSeq(0), _nwkSeq(0), _apsCounter(0), _zdoSeq(0)
+    , _lockPhase(LockScanPhase::IDLE), _lockTarget(0xFFFF), _lockPan(0xFFFF)
+    , _lockEpCount(0), _lockEpIndex(0), _lockSentAt_ms(0)
+    , _lockFound(false), _lockSweeping(false)
+    , _sweepLen(0), _sweepIdx(0), _sweepPan(0xFFFF)
 {
     memset(_pending, 0, sizeof(_pending));
     memset(_cache, 0, sizeof(_cache));
+    memset(_lockEndpoints, 0, sizeof(_lockEndpoints));
+    memset(_sweepQueue, 0, sizeof(_sweepQueue));
 
     // Seed all counters from HWRNG so a reboot doesn't restart the NWK frame
     // counter at a value a receiver may have already seen from our EUI64
@@ -43,6 +49,36 @@ ZbPing::ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner)
 
 // -- Public -------------------------------------------------------------------
 
+// Build an APS+ZDO request, NWK-encrypt and transmit it. `extra` is the ZDO
+// payload following the transaction-sequence byte. Returns the ZDP transaction
+// sequence used, or -1 on failure. Shared by ping() and find_lock.
+int ZbPing::_sendZdoReq(uint16_t cluster, uint16_t target, uint16_t pan,
+                         const uint8_t *extra, uint8_t extraLen) {
+    uint8_t seq = _zdoSeq++;
+    uint8_t aps[16];
+    if (9 + extraLen > (int)sizeof(aps)) return -1;
+    aps[0] = 0x00;  // APS FC: type=Data, delivery=unicast, unsecured
+    aps[1] = ZB_ZDO_EP;
+    aps[2] = (uint8_t)(cluster & 0xFF);
+    aps[3] = (uint8_t)(cluster >> 8);
+    aps[4] = (uint8_t)(ZB_ZDO_PROFILE_ID & 0xFF);
+    aps[5] = (uint8_t)(ZB_ZDO_PROFILE_ID >> 8);
+    aps[6] = ZB_ZDO_EP;
+    aps[7] = _apsCounter++;
+    aps[8] = seq;                       // ZDP transaction seq
+    for (uint8_t i = 0; i < extraLen; i++) aps[9 + i] = extra[i];
+    uint8_t apsLen = 9 + extraLen;
+
+    if (Verbose) {
+        Serial.printf("[ZDO] cluster=0x%04X -> 0x%04X plaintext: ", cluster, target);
+        for (uint8_t i = 0; i < apsLen; i++) Serial.printf("%02X ", aps[i]);
+        Serial.println();
+    }
+
+    if (!_nwkEncryptAndSend(pan, target, aps, apsLen)) return -1;
+    return seq;
+}
+
 bool ZbPing::ping(uint16_t targetShortAddr, uint16_t targetPan) {
     if (!_joiner.isAssociated()) {
         Serial.println("[Ping] Not associated - run 'J' to join the network first");
@@ -53,32 +89,102 @@ bool ZbPing::ping(uint16_t targetShortAddr, uint16_t targetPan) {
         return false;
     }
 
-    uint8_t seq = _zdoSeq++;
-    uint8_t apsFrame[11];
-    apsFrame[0]  = 0x00;  // APS FC: type=Data, delivery=unicast, unsecured
-    apsFrame[1]  = ZB_ZDO_EP;
-    apsFrame[2]  = (uint8_t)(ZB_ZDO_NODE_DESC_REQ & 0xFF);
-    apsFrame[3]  = (uint8_t)(ZB_ZDO_NODE_DESC_REQ >> 8);
-    apsFrame[4]  = (uint8_t)(ZB_ZDO_PROFILE_ID & 0xFF);
-    apsFrame[5]  = (uint8_t)(ZB_ZDO_PROFILE_ID >> 8);
-    apsFrame[6]  = ZB_ZDO_EP;
-    apsFrame[7]  = _apsCounter++;
-    apsFrame[8]  = seq;                                // ZDP transaction seq
-    apsFrame[9]  = (uint8_t)(targetShortAddr & 0xFF);  // NWKAddrOfInterest
-    apsFrame[10] = (uint8_t)(targetShortAddr >> 8);
+    uint8_t noi[2] = { (uint8_t)(targetShortAddr & 0xFF), (uint8_t)(targetShortAddr >> 8) };
+    int seq = _sendZdoReq(ZB_ZDO_NODE_DESC_REQ, targetShortAddr, targetPan, noi, 2);
+    if (seq < 0) return false;
 
-    if (Verbose) {
-        Serial.printf("[Ping] APS+ZDO plaintext: ");
-        for (uint8_t b : apsFrame) Serial.printf("%02X ", b);
-        Serial.println();
-    }
-
-    if (!_nwkEncryptAndSend(targetPan, targetShortAddr, apsFrame, sizeof(apsFrame)))
-        return false;
-
-    _allocPending(targetShortAddr, targetPan, seq);
+    _allocPending(targetShortAddr, targetPan, (uint8_t)seq);
     Serial.printf("[Ping] Sent Node_Desc_req to 0x%04X (zdoSeq=%u)\n", targetShortAddr, seq);
     return true;
+}
+
+// -- find_lock -----------------------------------------------------------------
+
+bool ZbPing::findLock(uint16_t targetShortAddr, uint16_t targetPan) {
+    if (!_joiner.isAssociated()) {
+        Serial.println("[Lock] Not associated - run 'J' to join the network first");
+        return false;
+    }
+    if (!_sniffer.findLatestNetworkKey()) {
+        Serial.println("[Lock] No network key captured yet - can't probe");
+        return false;
+    }
+    if (_lockPhase != LockScanPhase::IDLE) {
+        Serial.printf("[Lock] Busy scanning 0x%04X - try again shortly\n", _lockTarget);
+        return false;
+    }
+    _lockSweeping = false;
+    return _startLockScan(targetShortAddr, targetPan);
+}
+
+void ZbPing::findLockSweepAll() {
+    if (!_joiner.isAssociated() || !_sniffer.findLatestNetworkKey()) {
+        Serial.println("[Lock] Need a join ('J') and a captured network key first");
+        return;
+    }
+    _sweepLen = 0;
+    _sweepIdx = 0;
+    _sweepPan = 0xFFFF;
+    for (int i = 0; i < _sniffer.hosts.size() && _sweepLen < MAX_LOCK_SWEEP; i++) {
+        HostRecord *h = _sniffer.hosts.get(i);
+        if (h->shortAddr == 0xFFFE || h->shortAddr == 0xFFFF) continue;
+        if (h->shortAddr == 0x0000) continue;  // skip coordinator (that's us-ward)
+        _sweepQueue[_sweepLen++] = h->shortAddr;
+        if (_sweepPan == 0xFFFF && h->panId && h->panId != 0xFFFF) _sweepPan = h->panId;
+    }
+    if (_sweepLen == 0) {
+        Serial.println("[Lock] No hosts to sweep");
+        return;
+    }
+    _lockSweeping = true;
+    Serial.printf("[Lock] Sweeping %u host(s) for the Door Lock cluster (0x0101)\n", _sweepLen);
+    _nextSweepOrIdle();
+}
+
+bool ZbPing::_startLockScan(uint16_t target, uint16_t pan) {
+    _lockTarget  = target;
+    _lockPan     = pan;
+    _lockFound   = false;
+    _lockEpCount = 0;
+    _lockEpIndex = 0;
+
+    uint8_t noi[2] = { (uint8_t)(target & 0xFF), (uint8_t)(target >> 8) };
+    if (_sendZdoReq(ZB_ZDO_ACTIVE_EP_REQ, target, pan, noi, 2) < 0) {
+        Serial.printf("[Lock] TX failed for 0x%04X\n", target);
+        _lockPhase = LockScanPhase::IDLE;
+        return false;
+    }
+    _lockPhase     = LockScanPhase::WAIT_ACTIVE_EP;
+    _lockSentAt_ms = millis();
+    Serial.printf("[Lock] Probing 0x%04X (Active_EP_req)...\n", target);
+    return true;
+}
+
+void ZbPing::_sendSimpleDescReq(uint8_t endpoint) {
+    uint8_t body[3] = { (uint8_t)(_lockTarget & 0xFF), (uint8_t)(_lockTarget >> 8), endpoint };
+    _sendZdoReq(ZB_ZDO_SIMPLE_DESC_REQ, _lockTarget, _lockPan, body, 3);
+    _lockSentAt_ms = millis();
+}
+
+void ZbPing::_finishLockTarget() {
+    if (_lockFound)
+        Serial.printf("[Lock] *** 0x%04X IS A DOOR LOCK (exposes cluster 0x0101) ***\n",
+                      _lockTarget);
+    else if (!_lockSweeping)
+        Serial.printf("[Lock] 0x%04X: no Door Lock cluster found\n", _lockTarget);
+    _lockPhase = LockScanPhase::IDLE;
+    _nextSweepOrIdle();
+}
+
+void ZbPing::_nextSweepOrIdle() {
+    if (!_lockSweeping) return;
+    if (_sweepIdx >= _sweepLen) {
+        _lockSweeping = false;
+        Serial.println("[Lock] Sweep complete");
+        return;
+    }
+    uint16_t next = _sweepQueue[_sweepIdx++];
+    _startLockScan(next, _sweepPan);
 }
 
 void ZbPing::update() {
@@ -88,6 +194,28 @@ void ZbPing::update() {
             Serial.printf("[Ping] Timeout: no response from 0x%04X after %ums\n",
                           _pending[i].target, (unsigned)PING_TIMEOUT_MS);
             _pending[i].active = false;
+        }
+    }
+
+    // find_lock step timeouts
+    if (_lockPhase != LockScanPhase::IDLE &&
+        (now - _lockSentAt_ms) > LOCK_STEP_TIMEOUT_MS) {
+        if (_lockPhase == LockScanPhase::WAIT_ACTIVE_EP) {
+            if (!_lockSweeping)
+                Serial.printf("[Lock] 0x%04X: no Active_EP response (offline or refused)\n",
+                              _lockTarget);
+            _lockPhase = LockScanPhase::IDLE;
+            _nextSweepOrIdle();
+        } else {  // WAIT_SIMPLE_DESC — skip this endpoint, try the next
+            if (Verbose)
+                Serial.printf("[Lock] 0x%04X ep %u: Simple_Desc timeout\n",
+                              _lockTarget,
+                              _lockEpIndex < _lockEpCount ? _lockEndpoints[_lockEpIndex] : 0);
+            _lockEpIndex++;
+            if (_lockEpIndex < _lockEpCount)
+                _sendSimpleDescReq(_lockEndpoints[_lockEpIndex]);
+            else
+                _finishLockTarget();
         }
     }
 }
@@ -100,9 +228,12 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
     if (!info.zbNwkSecurityEnabled)                   return false;
     if (is_bcast(info.route.nwkDst))                  return false;
 
-    // Only spend effort decrypting if we're actually waiting on this source.
-    PendingPing *p = _findPending(info.route.nwkSrc);
-    if (!p) return false;
+    // Only spend effort decrypting if we're actually waiting on this source —
+    // either for a ping response or as part of an in-flight find_lock scan.
+    uint16_t src = info.route.nwkSrc;
+    PendingPing *p = _findPending(src);
+    bool wantLock = (_lockPhase != LockScanPhase::IDLE && src == _lockTarget);
+    if (!p && !wantLock) return false;
 
     if (macPayloadOffset >= rawLen) return false;
     const uint8_t *nwk = rawFrame + macPayloadOffset;
@@ -110,9 +241,9 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
 
     uint8_t plain[96];
     uint8_t plainLen = 0;
-    if (!_nwkDecrypt(nwk, nwkLen, info.route.nwkSrc, plain, plainLen)) {
+    if (!_nwkDecrypt(nwk, nwkLen, src, plain, plainLen)) {
         if (Verbose)
-            Serial.printf("[Ping] Decrypt failed for response from 0x%04X\n", info.route.nwkSrc);
+            Serial.printf("[ZDO] Decrypt failed for response from 0x%04X\n", src);
         return false;
     }
 
@@ -120,30 +251,132 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
     uint8_t apsFc = plain[0];
     if ((apsFc & 0x03) != 0x00) return false;  // not an APS Data frame
     if ((apsFc >> 5) & 0x01) {
-        Serial.println("[Ping] Response is APS-secured - not supported, skipping");
+        if (Verbose) Serial.println("[ZDO] Response is APS-secured - not supported");
         return false;
     }
 
     uint16_t cluster = (uint16_t)plain[2] | ((uint16_t)plain[3] << 8);
     uint16_t profile = (uint16_t)plain[4] | ((uint16_t)plain[5] << 8);
-    if (cluster != ZB_ZDO_NODE_DESC_RSP || profile != ZB_ZDO_PROFILE_ID) return false;
+    if (profile != ZB_ZDO_PROFILE_ID) return false;
 
     const uint8_t *zdo = plain + 8;
     uint8_t zdoLen = plainLen - 8;
-    if (zdoLen < 17) return false;  // seq(1)+status(1)+nwkAddr(2)+nodeDesc(13)
 
-    uint32_t rtt = millis() - p->sentAt_ms;
-    p->active = false;
+    switch (cluster) {
+        case ZB_ZDO_NODE_DESC_RSP: {
+            if (!p) return false;
+            if (zdoLen < 17) return false;  // seq+status+nwkAddr+nodeDesc(13)
+            uint32_t rtt = millis() - p->sentAt_ms;
+            p->active = false;
+            uint8_t status = zdo[1];
+            if (status != 0x00) {
+                Serial.printf("[Ping] 0x%04X returned ZDO status 0x%02X (no descriptor)\n",
+                              src, status);
+                return true;
+            }
+            _reportNodeDesc(src, &zdo[4], rtt);
+            return true;
+        }
+        case ZB_ZDO_ACTIVE_EP_RSP:
+            if (!wantLock) return false;
+            _handleActiveEpRsp(src, zdo, zdoLen);
+            return true;
+        case ZB_ZDO_SIMPLE_DESC_RSP:
+            if (!wantLock) return false;
+            _handleSimpleDescRsp(src, zdo, zdoLen);
+            return true;
+        default:
+            return false;
+    }
+}
 
+// -- find_lock response handlers ----------------------------------------------
+
+// Active_EP_rsp: seq(1) status(1) nwkAddr(2) epCount(1) endpoints(epCount)
+void ZbPing::_handleActiveEpRsp(uint16_t src, const uint8_t *zdo, uint8_t zdoLen) {
+    if (_lockPhase != LockScanPhase::WAIT_ACTIVE_EP) return;
+    if (zdoLen < 5) return;
     uint8_t status = zdo[1];
     if (status != 0x00) {
-        Serial.printf("[Ping] 0x%04X returned ZDO status 0x%02X (no descriptor)\n",
-                      info.route.nwkSrc, status);
-        return true;
+        if (!_lockSweeping)
+            Serial.printf("[Lock] 0x%04X Active_EP status 0x%02X\n", src, status);
+        _finishLockTarget();
+        return;
+    }
+    uint8_t epCount = zdo[4];
+    if (epCount == 0 || (5 + epCount) > zdoLen) {
+        _finishLockTarget();
+        return;
+    }
+    _lockEpCount = (epCount > MAX_LOCK_ENDPOINTS) ? MAX_LOCK_ENDPOINTS : epCount;
+    for (uint8_t i = 0; i < _lockEpCount; i++) _lockEndpoints[i] = zdo[5 + i];
+    _lockEpIndex = 0;
+    _lockPhase   = LockScanPhase::WAIT_SIMPLE_DESC;
+    if (Verbose)
+        Serial.printf("[Lock] 0x%04X has %u endpoint(s), reading descriptors\n",
+                      src, _lockEpCount);
+    _sendSimpleDescReq(_lockEndpoints[0]);
+}
+
+// Simple_Desc_rsp: seq(1) status(1) nwkAddr(2) length(1) then the Simple
+// Descriptor: endpoint(1) profile(2) device(2) devVer(1) inCount(1)
+// inClusters(2*inCount) outCount(1) outClusters(2*outCount)
+void ZbPing::_handleSimpleDescRsp(uint16_t src, const uint8_t *zdo, uint8_t zdoLen) {
+    if (_lockPhase != LockScanPhase::WAIT_SIMPLE_DESC) return;
+    if (zdoLen >= 5 && zdo[1] == 0x00) {
+        const uint8_t *d = &zdo[5];
+        uint8_t descLen = zdo[4];
+        // Need at least endpoint(1)+profile(2)+device(2)+ver(1)+inCount(1) = 7
+        if (descLen >= 7 && (5 + descLen) <= zdoLen) {
+            uint8_t ep      = d[0];
+            uint16_t profId = (uint16_t)d[1] | ((uint16_t)d[2] << 8);
+            uint8_t inCount = d[6];
+            uint8_t o = 7;
+            bool epHasLock = false;
+            for (uint8_t i = 0; i < inCount && (o + 1) < descLen; i++, o += 2) {
+                uint16_t c = (uint16_t)d[o] | ((uint16_t)d[o + 1] << 8);
+                if (c == ZB_CLUSTER_DOOR_LOCK) epHasLock = true;
+            }
+            if (o < descLen) {
+                uint8_t outCount = d[o++];
+                for (uint8_t i = 0; i < outCount && (o + 1) < descLen; i++, o += 2) {
+                    uint16_t c = (uint16_t)d[o] | ((uint16_t)d[o + 1] << 8);
+                    if (c == ZB_CLUSTER_DOOR_LOCK) epHasLock = true;
+                }
+            }
+            if (epHasLock) {
+                _lockFound = true;
+                Serial.printf("[Lock] 0x%04X ep %u (profile 0x%04X) exposes Door Lock cluster\n",
+                              src, ep, profId);
+            } else if (Verbose) {
+                Serial.printf("[Lock] 0x%04X ep %u: %u input cluster(s), no lock\n",
+                              src, ep, inCount);
+            }
+        }
     }
 
-    _reportNodeDesc(info.route.nwkSrc, &zdo[4], rtt);
-    return true;
+    _lockEpIndex++;
+    if (_lockEpIndex < _lockEpCount)
+        _sendSimpleDescReq(_lockEndpoints[_lockEpIndex]);
+    else
+        _finishLockTarget();
+}
+
+void ZbPing::printLockStatus() const {
+    switch (_lockPhase) {
+        case LockScanPhase::IDLE:
+            Serial.println("[Lock] Idle");
+            break;
+        case LockScanPhase::WAIT_ACTIVE_EP:
+            Serial.printf("[Lock] Scanning 0x%04X (waiting for endpoint list)\n", _lockTarget);
+            break;
+        case LockScanPhase::WAIT_SIMPLE_DESC:
+            Serial.printf("[Lock] Scanning 0x%04X (endpoint %u/%u)\n",
+                          _lockTarget, _lockEpIndex + 1, _lockEpCount);
+            break;
+    }
+    if (_lockSweeping)
+        Serial.printf("[Lock] Sweep in progress (%u/%u)\n", _sweepIdx, _sweepLen);
 }
 
 // -- Pending / cache tables -----------------------------------------------------
