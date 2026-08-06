@@ -35,13 +35,21 @@
 #define ZB_ZDO_ACTIVE_EP_RSP        0x8005
 
 #define ZB_CLUSTER_DOOR_LOCK        0x0101
+#define ZB_PROFILE_HA               0x0104  // Home Automation (fallback profile)
+
+// ZCL Door Lock cluster commands (client -> server)
+#define ZCL_DOORLOCK_CMD_LOCK       0x00
+#define ZCL_DOORLOCK_CMD_UNLOCK     0x01
+#define ZCL_CMD_DEFAULT_RESPONSE    0x0B
 
 #define MAX_PENDING_PINGS   6
 #define MAX_NODE_DESC_CACHE 32
 #define MAX_LOCK_ENDPOINTS  16
 #define MAX_LOCK_SWEEP      32
+#define MAX_LOCK_INFO       8
 #define PING_TIMEOUT_MS     3000
 #define LOCK_STEP_TIMEOUT_MS 2500
+#define UNLOCK_TIMEOUT_MS   3000
 
 struct PendingPing {
     bool     active;
@@ -70,6 +78,16 @@ struct NodeDescCache {
 
 enum class LockScanPhase : uint8_t { IDLE, WAIT_ACTIVE_EP, WAIT_SIMPLE_DESC };
 
+// Where a Door Lock cluster was found, so unlock() can target it without the
+// caller having to know the endpoint. Populated by find_lock.
+struct LockInfo {
+    bool     valid;
+    uint16_t addr;
+    uint16_t pan;
+    uint8_t  endpoint;
+    uint16_t profile;
+};
+
 class ZbPing {
 public:
     ZbPing(IEEE802154Sniffer &sniffer, ZbJoiner &joiner);
@@ -84,6 +102,12 @@ public:
     bool findLock(uint16_t targetShortAddr, uint16_t targetPan);
     void findLockSweepAll();
     void printLockStatus() const;
+
+    // unlock (ZigDiggity "unlock"): send a ZCL Door Lock 'Unlock Door' command
+    // to a lock previously located by find_lock. pin is optional (some locks
+    // require a PIN/RFID code as an octet string; most legacy ones do not).
+    // ** AUTHORISED TESTING OF YOUR OWN LOCK ONLY — this physically opens it. **
+    bool unlock(uint16_t targetShortAddr, const char *pin = nullptr);
 
     void update();  // drives pending-ping + lock-scan timeouts — call every loop()
 
@@ -114,6 +138,11 @@ private:
     uint8_t        _sweepLen, _sweepIdx;
     uint16_t       _sweepPan;
 
+    // Located locks (from find_lock) + in-flight unlock tracking.
+    LockInfo       _locks[MAX_LOCK_INFO];
+    uint16_t       _unlockTarget;      // 0xFFFF = none pending
+    uint32_t       _unlockSentAt_ms;
+
     PendingPing   *_findPending(uint16_t target);
     PendingPing   *_allocPending(uint16_t target, uint16_t pan, uint8_t zdoSeq);
     NodeDescCache *_findCache(uint16_t addr);
@@ -124,6 +153,11 @@ private:
     bool _findAuxHeader(const uint8_t *nwk, uint8_t len, uint16_t nwkFc,
                         uint8_t &auxOffset);
 
+    // Build an APS Data frame to (dstEp, cluster, profile), NWK-encrypt and
+    // send it with `payload` as the APS payload. Returns true on TX success.
+    bool _sendApsData(uint8_t dstEp, uint8_t srcEp, uint16_t cluster,
+                      uint16_t profile, const uint8_t *payload, uint8_t payloadLen,
+                      uint16_t target, uint16_t pan);
     // Build APS+ZDO header, NWK-encrypt and send. `extra` is the ZDO payload
     // after the transaction-sequence byte. Returns the ZDP seq, or -1 on fail.
     int  _sendZdoReq(uint16_t cluster, uint16_t target, uint16_t pan,
@@ -143,4 +177,9 @@ private:
     void _handleSimpleDescRsp(uint16_t src, const uint8_t *zdo, uint8_t zdoLen);
     void _finishLockTarget();
     void _nextSweepOrIdle();
+
+    // unlock helpers
+    LockInfo *_findLockInfo(uint16_t addr);
+    void      _recordLockInfo(uint16_t addr, uint16_t pan, uint8_t ep, uint16_t profile);
+    void      _handleDoorLockRsp(uint16_t src, const uint8_t *zcl, uint8_t zclLen);
 };

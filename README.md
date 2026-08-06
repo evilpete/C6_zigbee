@@ -52,6 +52,7 @@ pio run -t upload -t monitor
 | `J[addr]` | Join the network as a plain end device (ZbJoiner). Auto-picks the most recently seen host advertising association-permit if `addr` is omitted, e.g. `J04A7` to target a specific host. Requires an open network. |
 | `P[addr]` | Ping a host via ZDO Node Descriptor request (ZbPing). `P` alone sweeps every known host. Requires a successful `J` join **and** a captured network key — see below. |
 | `L[addr]` | `find_lock` — probe a host's endpoints/clusters for the Door Lock cluster (0x0101). `L` alone sweeps every known host. Requires join + network key. |
+| `O<addr>[,pin]` | `unlock` — send ZCL `Unlock Door` to a lock located by `find_lock` (e.g. `O1A2E` or `O1A2E,1234`). **Physically opens the lock — own lock only.** |
 | `M[addr]` | Spoof our EUI64 to that of a known host (`M` alone restores the real hardware MAC). |
 | `R<addr>` | `insecure_rejoin` attack — impersonate a host and send an unsecured rejoin request. **Authorised testing only.** |
 | `A[addr]` | `ack_attack` — spoof MAC ACKs to a target to suppress/steal its traffic (`A` alone = stop / status). **Authorised testing only.** |
@@ -86,7 +87,15 @@ Ports of three attacks from Bishop Fox's [ZigDiggity](https://github.com/BishopF
   (`Active_EP_req`) and each endpoint's clusters (`Simple_Desc_req`) and flags
   any device that exposes the Door Lock cluster (0x0101). Reuses the same ZDO
   request/response + NWK-crypto machinery as `P` (ping), so it needs a join and
-  a captured network key.
+  a captured network key. It also remembers each lock's endpoint + profile so
+  `unlock` can target it.
+
+- **`unlock` (`O<addr>[,pin]`)** — sends the ZCL Door Lock **Unlock Door**
+  command (0x01) to a lock previously located by `find_lock`, and reports the
+  lock's Default/Unlock response status. An optional PIN is encoded as the
+  command's octet-string parameter (`O1A2E,1234`); most legacy locks accept the
+  command with no PIN, which is exactly the weakness this demonstrates. **This
+  physically opens the lock — run it only against your own lock.**
 
 ## Active probing (join / ping)
 

