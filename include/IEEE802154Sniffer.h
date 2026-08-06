@@ -247,6 +247,38 @@ public:
 
     // Join TX — for associating with an open network as a plain end device
     uint64_t getOwnEUI64() const { return _ownEUI64; }
+
+    // --- EUI64 (extended/MAC address) spoofing ------------------------------
+    // Override the source EUI64 used by all outgoing frame builders (and the
+    // radio's programmed extended address). Used to impersonate a known
+    // device — e.g. to test gateways that allowlist rejoins by client MAC, or
+    // to drive the insecure-rejoin attack as a target device. Byte order
+    // matches HostRecord::extAddr, so setOwnEUI64(host->extAddr) reproduces
+    // that device's on-air address exactly.
+    void     setOwnEUI64(uint64_t eui64);
+    void     restoreOwnEUI64();                  // back to the real hardware MAC
+    uint64_t getHwEUI64()   const { return _hwEUI64; }
+    bool     isEUI64Spoofed() const { return _ownEUI64 != _hwEUI64; }
+
+    // --- MAC ACK injection --------------------------------------------------
+    // Send a bare 802.15.4 Acknowledgment frame for sequence number `seqNum`.
+    // NOTE: this goes through the slow stop-RX/TX/resume path and is far too
+    // slow to win an ACK race — use startAckAttack() for the timing-critical
+    // ISR path. This is here for manual testing / completeness.
+    bool     sendAck(uint8_t seqNum);
+
+    // ACK-attack (ZigDiggity "ack_attack"): while active, the RX ISR watches
+    // for data frames addressed to `target` that request an ACK, and injects a
+    // spoofed ACK immediately from the ISR — racing (and ideally beating) the
+    // real device's radio, so the *sender* believes delivery succeeded while
+    // the target may never process the frame. Best-effort: whether we win the
+    // race depends on RF geometry and driver turnaround (see .cpp caveats).
+    void     startAckAttack(uint16_t target);
+    void     stopAckAttack();
+    bool     isAckAttackActive() const { return _ackAttackActive; }
+    uint16_t getAckAttackTarget() const { return _ackAttackTarget; }
+    uint32_t getAckAttackCount()  const { return _ackAttackCount; }
+
     bool    sendAssociationRequest(uint16_t dstPan, uint16_t dstShortAddr,
                                     uint8_t capabilityInfo = ASSOC_CAP_SIMPLE_DEVICE);
     // Poll parent for a queued (indirect) frame. Before association completes
@@ -311,6 +343,13 @@ private:
     uint32_t _frameCount, _zbCount, _threadCount, _dropped;
     Stream  *_pcapOut;
     uint64_t _ownEUI64 = 0;
+    uint64_t _hwEUI64  = 0;         // real hardware MAC, for restore
+    uint8_t  _hwEUI64Bytes[8] = {}; // exact bytes esp_read_mac() returned
+
+    // ACK-attack state — read/written from the RX ISR, hence static + volatile.
+    static volatile bool     _ackAttackActive;
+    static volatile uint16_t _ackAttackTarget;
+    static volatile uint32_t _ackAttackCount;
 
     static QueueHandle_t _rxQueue;
 

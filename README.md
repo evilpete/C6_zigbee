@@ -51,8 +51,52 @@ pio run -t upload -t monitor
 | `j`     | Print join status |
 | `J[addr]` | Join the network as a plain end device (ZbJoiner). Auto-picks the most recently seen host advertising association-permit if `addr` is omitted, e.g. `J04A7` to target a specific host. Requires an open network. |
 | `P[addr]` | Ping a host via ZDO Node Descriptor request (ZbPing). `P` alone sweeps every known host. Requires a successful `J` join **and** a captured network key — see below. |
+| `L[addr]` | `find_lock` — probe a host's endpoints/clusters for the Door Lock cluster (0x0101). `L` alone sweeps every known host. Requires join + network key. |
+| `O<addr>[,pin]` | `unlock` — send ZCL `Unlock Door` to a lock located by `find_lock` (e.g. `O1A2E` or `O1A2E,1234`). **Physically opens the lock — own lock only.** |
+| `M[addr]` | Spoof our EUI64 to that of a known host (`M` alone restores the real hardware MAC). |
+| `R<addr>` | `insecure_rejoin` attack — impersonate a host and send an unsecured rejoin request. **Authorised testing only.** |
+| `A[addr]` | `ack_attack` — spoof MAC ACKs to a target to suppress/steal its traffic (`A` alone = stop / status). **Authorised testing only.** |
 
 reads /labels.csv if SD (if exists) for device names
+
+## Offensive probes (ZigDiggity-style) — authorised testing only
+
+> These are active attacks. Only run them against a Zigbee network you own or
+> are explicitly authorised to test. They transmit on-air and can disrupt or
+> take over devices.
+
+Ports of three attacks from Bishop Fox's [ZigDiggity](https://github.com/BishopFox/zigdiggity):
+
+- **`insecure_rejoin` (`R<addr>`)** — impersonates a known device by spoofing
+  its EUI64 (`M`) and sends an *unsecured* NWK Rejoin Request to the
+  coordinator. If the Trust Center's policy permits insecure / Trust-Center
+  rejoin, it answers with a Rejoin Response and then transports the network
+  key encrypted only with the well-known default TCLK — which the existing
+  `ZbKeyCapture` pipeline recovers passively. This is the classic way to pull
+  the network key off a misconfigured network without waiting for a real join.
+  Run `M` (no arg) afterwards to restore the hardware MAC.
+
+- **`ack_attack` (`A<addr>`)** — while armed, the RX ISR watches for data
+  frames addressed to the target that request an ACK and injects a spoofed MAC
+  ACK immediately, racing the real device. The *sender* then believes delivery
+  succeeded while the target may never process the frame — e.g. suppressing a
+  sensor's report from reaching the hub. Best-effort: winning the race depends
+  on RF proximity and radio turnaround (see `ack_attack` caveats in the code).
+
+- **`find_lock` (`L<addr>` / `L`)** — enumerates a device's endpoints
+  (`Active_EP_req`) and each endpoint's clusters (`Simple_Desc_req`) and flags
+  any device that exposes the Door Lock cluster (0x0101). Reuses the same ZDO
+  request/response + NWK-crypto machinery as `P` (ping), so it needs a join and
+  a captured network key. It also remembers each lock's endpoint + profile so
+  `unlock` can target it.
+
+- **`unlock` (`O<addr>[,pin]`)** — sends the ZCL Door Lock **Unlock Door**
+  command (0x01) to a lock previously located by `find_lock`, and reports the
+  lock's Default/Unlock response status. An optional PIN is encoded as the
+  command's octet-string parameter (`O1A2E,1234`); most legacy locks accept the
+  command with no PIN, which is exactly the weakness this demonstrates. **This
+  physically opens the lock — run it only against your own lock.**
+
 
 ## Active probing (join / ping)
 
@@ -107,8 +151,8 @@ captured live via `k`/`K` after a join sequence completes.
 - [ ] Marauder v2/v3 integration
 - ~~[ ] Join network as a plain end device~~ (`J` command, `ZbJoiner`)
 - ~~[ ] Ping / reachability probe for Zigbee devices~~ (`P` command, `ZbPing`)
-- [ ] Assume/clone another device's MAC (EUI64) address, e.g. to test
-      gateways that allowlist rejoins by client MAC
+- ~~[ ] Assume/clone another device's MAC (EUI64) address~~ (`M` command)
+- ~~[ ] insecure_rejoin / ack_attack / find_lock~~ (`R`/`A`/`L`, `ZbAttack`/`ZbPing`)
 
 ## Architecture
 
@@ -123,7 +167,10 @@ _printFrame() → Serial
 onFrame()     → TFT (future)
 onKeyCapture() → ZbKeyCapture (passive Transport Key capture)
               → ZbJoiner      (active join state machine, 'J')
-              → ZbPing        (active ZDO ping, 'P')
+              → ZbPing        (active ZDO ping 'P' + find_lock 'L')
+
+Offensive:      ZbAttack      (insecure_rejoin 'R', ack_attack 'A')
+                sniffer        EUI64 spoof 'M', ACK-inject (RX ISR)
 ```
 
 Active TX (join requests, data polls, encrypted ping frames) shares the

